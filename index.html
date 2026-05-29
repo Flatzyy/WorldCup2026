@@ -107,6 +107,7 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 <div class="tab-nav">
   <div class="tab-nav-inner">
     <button class="tab-btn active" onclick="showTab('group',this)">Group Stage</button>
+    <button class="tab-btn" onclick="showTab('standings',this)">Group Standings</button>
     <button class="tab-btn" onclick="showTab('r32',this)">Round of 32</button>
     <button class="tab-btn" onclick="showTab('r16',this)">Round of 16</button>
     <button class="tab-btn" onclick="showTab('qf',this)">Quarter-finals</button>
@@ -294,6 +295,13 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 <a class="match-card" href="#"><div class="match-time">03:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/dz.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">Algeria</span></div><div class="team-row"><img src="https://flagcdn.com/w40/at.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Austria</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">GROUP J</div><div class="venue">Levi's Stadium, San Francisco</div></div></a>
 <a class="match-card" href="#"><div class="match-time">03:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/jo.png" class="flag" alt=""><div class="team-name">Smevy</div><span class="country-tag">Jordan</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ar.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Argentina</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">GROUP J</div><div class="venue">Hard Rock Stadium, Miami</div></div></a>
 </div><!-- end group tab -->
+
+
+<div id="tab-standings" class="tab-content">
+  <div id="standings-container">
+    <div style="padding:20px;text-align:center;color:#888;font-size:13px;">Loading standings...</div>
+  </div>
+</div>
 
 <!-- ROUND OF 32 -->
 <div id="tab-r32" class="tab-content">
@@ -649,6 +657,264 @@ window.addEventListener("DOMContentLoaded", () => {
     fixtures.appendChild(ind);
   }
   fetchAllScores();
+});
+</script>
+
+
+<style>
+/* ---- STANDINGS TABLE ---- */
+.standings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; padding:16px 0; }
+.standings-card { background:#fff; border:1px solid #ddd; overflow:hidden; }
+.standings-head { background:#1a2e52; color:#fff; padding:8px 12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.standings-head img { width:16px; height:11px; object-fit:cover; border:1px solid rgba(255,255,255,0.3); }
+table.standings-table { width:100%; border-collapse:collapse; font-size:12px; }
+table.standings-table th { background:#f0f0f0; padding:5px 8px; text-align:center; font-size:10px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:0.5px; }
+table.standings-table th:first-child { text-align:left; padding-left:10px; }
+table.standings-table td { padding:6px 8px; text-align:center; border-bottom:1px solid #f5f5f5; }
+table.standings-table td:first-child { text-align:left; padding-left:10px; }
+table.standings-table tr:last-child td { border-bottom:none; }
+table.standings-table tr:nth-child(-n+2) td:first-child { border-left:3px solid #27ae60; }
+table.standings-table tr.live-row { background:#fffbf0; }
+.team-cell { display:flex; align-items:center; gap:7px; }
+.team-cell img { width:20px; height:13px; object-fit:cover; border:1px solid #eee; flex-shrink:0; }
+.team-cell .player-name { font-weight:700; color:#111; }
+.team-cell .country-name { font-size:10px; color:#888; margin-left:2px; }
+.gd-pos { color:#27ae60; font-weight:600; }
+.gd-neg { color:#e74c3c; font-weight:600; }
+.pts-cell { font-weight:700; color:#1a2e52; }
+.form-cell { display:flex; gap:2px; justify-content:center; }
+.form-w { width:14px; height:14px; background:#27ae60; color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
+.form-d { width:14px; height:14px; background:#f39c12; color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
+.form-l { width:14px; height:14px; background:#e74c3c; color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
+#standings-updated { text-align:center; font-size:10px; color:#aaa; padding:6px; }
+</style>
+
+<script>
+// ============================================================
+// GROUP STANDINGS — calculated from match results
+// ============================================================
+
+// Group definitions: group -> [country names]
+const groupTeams = {
+  A: ["Mexico","South Africa","South Korea","Czechia"],
+  B: ["Canada","Switzerland","Qatar","Bosnia"],
+  C: ["Brazil","Morocco","Haiti","Scotland"],
+  D: ["USA","Paraguay","Australia","Turkey"],
+  E: ["Germany","Curacao","Cote d'Ivoire","Ecuador"],
+  F: ["Netherlands","Japan","Sweden","Tunisia"],
+  G: ["Belgium","Egypt","Iran","New Zealand"],
+  H: ["Spain","Cabo Verde","Saudi Arabia","Uruguay"],
+  I: ["France","Senegal","Iraq","Norway"],
+  J: ["Argentina","Algeria","Austria","Jordan"],
+  K: ["Portugal","Uzbekistan","DR Congo","Colombia"],
+  L: ["England","Croatia","Ghana","Panama"]
+};
+
+// Player and flag for each country
+const teamInfo = {
+  "Mexico":        { player:"Liv",     flag:"mx" },
+  "South Africa":  { player:"Air",     flag:"za" },
+  "South Korea":   { player:"Marsh",   flag:"kr" },
+  "Czechia":       { player:"Kai",     flag:"cz" },
+  "Canada":        { player:"Richard", flag:"ca" },
+  "Switzerland":   { player:"Nojo",    flag:"ch" },
+  "Qatar":         { player:"Marsh",   flag:"qa" },
+  "Bosnia":        { player:"TJ",      flag:"ba" },
+  "Brazil":        { player:"Mount",   flag:"br" },
+  "Morocco":       { player:"Kai",     flag:"ma" },
+  "Haiti":         { player:"Nojo",    flag:"ht" },
+  "Scotland":      { player:"Louise",  flag:"gb-sct" },
+  "USA":           { player:"Smevy",   flag:"us" },
+  "Paraguay":      { player:"Ivan",    flag:"py" },
+  "Australia":     { player:"Kai",     flag:"au" },
+  "Turkey":        { player:"Richard", flag:"tr" },
+  "Germany":       { player:"Seas",    flag:"de" },
+  "Curacao":       { player:"Liv",     flag:"cw" },
+  "Cote d'Ivoire":{ player:"Mount",   flag:"ci" },
+  "Ecuador":       { player:"Melvin",  flag:"ec" },
+  "Netherlands":   { player:"Marsh",   flag:"nl" },
+  "Japan":         { player:"Air",     flag:"jp" },
+  "Sweden":        { player:"Air",     flag:"se" },
+  "Tunisia":       { player:"TJ",      flag:"tn" },
+  "Belgium":       { player:"Smevy",   flag:"be" },
+  "Egypt":         { player:"Nojo",    flag:"eg" },
+  "Iran":          { player:"Seas",    flag:"ir" },
+  "New Zealand":   { player:"Samuel",  flag:"nz" },
+  "Spain":         { player:"Samuel",  flag:"es" },
+  "Cabo Verde":    { player:"Mount",   flag:"cv" },
+  "Saudi Arabia":  { player:"Louise",  flag:"sa" },
+  "Uruguay":       { player:"Louise",  flag:"uy" },
+  "France":        { player:"Coops",   flag:"fr" },
+  "Senegal":       { player:"Liv",     flag:"sn" },
+  "Iraq":          { player:"Seas",    flag:"iq" },
+  "Norway":        { player:"Abbie",   flag:"no" },
+  "Argentina":     { player:"Abbie",   flag:"ar" },
+  "Algeria":       { player:"Coops",   flag:"dz" },
+  "Austria":       { player:"Samuel",  flag:"at" },
+  "Jordan":        { player:"Smevy",   flag:"jo" },
+  "Portugal":      { player:"Melvin",  flag:"pt" },
+  "Uzbekistan":    { player:"Melvin",  flag:"uz" },
+  "DR Congo":      { player:"Abbie",   flag:"cd" },
+  "Colombia":      { player:"Ivan",    flag:"co" },
+  "England":       { player:"Richard", flag:"gb-eng" },
+  "Croatia":       { player:"TJ",      flag:"hr" },
+  "Ghana":         { player:"Coops",   flag:"gh" },
+  "Panama":        { player:"Ivan",    flag:"pa" }
+};
+
+// ESPN name normalisation (same as live scores section)
+const standingsNameMap = {
+  "Czech Republic":"Czechia","Bosnia and Herzegovina":"Bosnia","Bosnia-Herzegovina":"Bosnia",
+  "United States":"USA","Ivory Coast":"Cote d'Ivoire","Côte d'Ivoire":"Cote d'Ivoire",
+  "Cape Verde":"Cabo Verde","Curacao":"Curacao","Curaçao":"Curacao",
+  "Congo DR":"DR Congo","DR Congo":"DR Congo","Scotland":"Scotland"
+};
+function normName(n){ return standingsNameMap[n] || n; }
+
+// Standings data store: country -> stats object
+let standingsData = {};
+
+function initStandings() {
+  standingsData = {};
+  Object.values(groupTeams).flat().forEach(team => {
+    standingsData[team] = { p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0, form:[] };
+  });
+}
+
+function applyResult(home, away, homeScore, awayScore, status) {
+  if (!standingsData[home] || !standingsData[away]) return;
+  const hg = parseInt(homeScore) || 0;
+  const ag = parseInt(awayScore) || 0;
+  const isFinal = status === "STATUS_FINAL" || status === "STATUS_FULL_TIME";
+  const isLive  = status === "STATUS_IN_PROGRESS" || status === "STATUS_HALFTIME";
+  if (!isFinal && !isLive) return;
+
+  standingsData[home].p++;
+  standingsData[away].p++;
+  standingsData[home].gf += hg; standingsData[home].ga += ag;
+  standingsData[away].gf += ag; standingsData[away].ga += hg;
+
+  if (hg > ag) {
+    standingsData[home].w++; standingsData[home].pts += 3;
+    standingsData[away].l++;
+    standingsData[home].form.push("W"); standingsData[away].form.push("L");
+  } else if (hg < ag) {
+    standingsData[away].w++; standingsData[away].pts += 3;
+    standingsData[home].l++;
+    standingsData[home].form.push("L"); standingsData[away].form.push("W");
+  } else {
+    standingsData[home].d++; standingsData[home].pts++;
+    standingsData[away].d++; standingsData[away].pts++;
+    standingsData[home].form.push("D"); standingsData[away].form.push("D");
+  }
+}
+
+async function fetchStandingsDate(dateStr) {
+  try {
+    const url = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=" + dateStr;
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const data = await res.json();
+    (data.events || []).forEach(ev => {
+      const comps = ev.competitions && ev.competitions[0];
+      if (!comps) return;
+      const competitors = comps.competitors || [];
+      if (competitors.length < 2) return;
+      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
+      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
+      const h = normName(home.team.displayName);
+      const a = normName(away.team.displayName);
+      const hs = home.score || "0";
+      const as_ = away.score || "0";
+      const status = ev.status && ev.status.type && ev.status.type.name;
+      applyResult(h, a, hs, as_, status);
+    });
+  } catch(e) {}
+}
+
+function sortGroup(teams) {
+  return [...teams].sort((a, b) => {
+    const da = standingsData[a], db = standingsData[b];
+    if (db.pts !== da.pts) return db.pts - da.pts;
+    const gdA = da.gf - da.ga, gdB = db.gf - db.ga;
+    if (gdB !== gdA) return gdB - gdA;
+    if (db.gf !== da.gf) return db.gf - da.gf;
+    return a.localeCompare(b);
+  });
+}
+
+function formBadge(r) {
+  if (r === "W") return `<div class="form-w">W</div>`;
+  if (r === "D") return `<div class="form-d">D</div>`;
+  return `<div class="form-l">L</div>`;
+}
+
+function renderStandings() {
+  const container = document.getElementById("standings-container");
+  if (!container) return;
+
+  let html = `<div class="standings-grid">`;
+
+  Object.entries(groupTeams).forEach(([grp, teams]) => {
+    const sorted = sortGroup(teams);
+    html += `<div class="standings-card">
+      <div class="standings-head">GROUP ${grp}</div>
+      <table class="standings-table">
+        <thead><tr>
+          <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th>
+          <th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th>
+        </tr></thead><tbody>`;
+
+    sorted.forEach(team => {
+      const s = standingsData[team] || { p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,form:[] };
+      const gd = s.gf - s.ga;
+      const gdStr = gd > 0 ? `+${gd}` : `${gd}`;
+      const gdClass = gd > 0 ? "gd-pos" : gd < 0 ? "gd-neg" : "";
+      const info = teamInfo[team] || { player: team, flag: "un" };
+      const recentForm = s.form.slice(-3);
+      const formHtml = recentForm.length
+        ? `<div class="form-cell">${recentForm.map(formBadge).join("")}</div>`
+        : `<span style="color:#ccc;font-size:10px;">-</span>`;
+
+      html += `<tr>
+        <td><div class="team-cell">
+          <img src="https://flagcdn.com/w40/${info.flag}.png" alt="">
+          <span class="player-name">${info.player}</span>
+          <span class="country-name">${team}</span>
+        </div></td>
+        <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+        <td>${s.gf}</td><td>${s.ga}</td>
+        <td class="${gdClass}">${gdStr}</td>
+        <td class="pts-cell">${s.pts}</td>
+        <td>${formHtml}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+  });
+
+  html += `</div><div id="standings-updated"></div>`;
+  container.innerHTML = html;
+
+  const upd = document.getElementById("standings-updated");
+  if (upd) upd.textContent = "Standings last updated: " + new Date().toLocaleTimeString("en-GB");
+}
+
+async function refreshStandings() {
+  initStandings();
+  const dates = [
+    "20260611","20260612","20260613","20260614","20260615","20260616","20260617",
+    "20260618","20260619","20260620","20260621","20260622","20260623","20260624",
+    "20260625","20260626","20260627","20260628"
+  ];
+  await Promise.all(dates.map(fetchStandingsDate));
+  renderStandings();
+  setTimeout(refreshStandings, 60000); // refresh every 60 seconds
+}
+
+// Kick off standings when page loads
+window.addEventListener("DOMContentLoaded", () => {
+  refreshStandings();
 });
 </script>
 
