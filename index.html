@@ -470,187 +470,124 @@ function showTab(id,btn){
 </script>
 
 <script>
-
 // ============================================================
-// LIVE SCORES — football-data.org API
+// LIVE SCORES + STANDINGS — ESPN public API
 // ============================================================
 
-const FD_KEY = "38f1d8c736004db8af3a8c19a207cd1a";
-const FD_BASE = "https://api.football-data.org/v4";
-const WC_CODE = "WC"; // FIFA World Cup competition code
+const matchDates = [
+  "20260611","20260612","20260613","20260614","20260615","20260616","20260617",
+  "20260618","20260619","20260620","20260621","20260622","20260623","20260624",
+  "20260625","20260626","20260627","20260628"
+];
 
-// Map football-data.org team names to our country names
-const fdNameMap = {
-  "Mexico":"Mexico","South Africa":"South Africa","Korea Republic":"South Korea",
-  "Czechia":"Czechia","Czech Republic":"Czechia","Canada":"Canada",
-  "Bosnia and Herzegovina":"Bosnia","Qatar":"Qatar","Switzerland":"Switzerland",
-  "Brazil":"Brazil","Morocco":"Morocco","United States":"USA","USA":"USA",
-  "Paraguay":"Paraguay","Haiti":"Haiti","Scotland":"Scotland","Australia":"Australia",
-  "Turkey":"Turkey","Türkiye":"Turkey","Germany":"Germany","Curaçao":"Curacao",
-  "Côte d'Ivoire":"Cote d'Ivoire","Ecuador":"Ecuador","Netherlands":"Netherlands",
-  "Japan":"Japan","Sweden":"Sweden","Tunisia":"Tunisia","Spain":"Spain",
-  "Cabo Verde":"Cabo Verde","Belgium":"Belgium","Egypt":"Egypt","IR Iran":"Iran",
-  "Iran":"Iran","New Zealand":"New Zealand","Saudi Arabia":"Saudi Arabia",
-  "Uruguay":"Uruguay","France":"France","Senegal":"Senegal","Iraq":"Iraq",
-  "Norway":"Norway","Argentina":"Argentina","Algeria":"Algeria","Austria":"Austria",
-  "Jordan":"Jordan","Portugal":"Portugal","Uzbekistan":"Uzbekistan",
-  "DR Congo":"DR Congo","England":"England","Croatia":"Croatia",
+const espnNameMap = {
+  "Mexico":"Mexico","South Africa":"South Africa","South Korea":"South Korea",
+  "Korea Republic":"South Korea","Czech Republic":"Czechia","Czechia":"Czechia",
+  "Canada":"Canada","Bosnia and Herzegovina":"Bosnia","Bosnia-Herzegovina":"Bosnia",
+  "Qatar":"Qatar","Switzerland":"Switzerland","Brazil":"Brazil","Morocco":"Morocco",
+  "United States":"USA","USA":"USA","Paraguay":"Paraguay","Haiti":"Haiti",
+  "Scotland":"Scotland","Australia":"Australia","Turkey":"Turkey","Türkiye":"Turkey",
+  "Germany":"Germany","Curacao":"Curacao","Curaçao":"Curacao",
+  "Ivory Coast":"Cote d'Ivoire","Côte d'Ivoire":"Cote d'Ivoire","Cote d'Ivoire":"Cote d'Ivoire",
+  "Ecuador":"Ecuador","Netherlands":"Netherlands","Japan":"Japan","Sweden":"Sweden",
+  "Tunisia":"Tunisia","Spain":"Spain","Cape Verde":"Cabo Verde","Cabo Verde":"Cabo Verde",
+  "Belgium":"Belgium","Egypt":"Egypt","Iran":"Iran","IR Iran":"Iran",
+  "New Zealand":"New Zealand","Saudi Arabia":"Saudi Arabia","Uruguay":"Uruguay",
+  "France":"France","Senegal":"Senegal","Iraq":"Iraq","Norway":"Norway",
+  "Argentina":"Argentina","Algeria":"Algeria","Austria":"Austria","Jordan":"Jordan",
+  "Portugal":"Portugal","Uzbekistan":"Uzbekistan","DR Congo":"DR Congo",
+  "Congo DR":"DR Congo","England":"England","Croatia":"Croatia",
   "Ghana":"Ghana","Panama":"Panama","Colombia":"Colombia"
 };
+function normName(n){ return espnNameMap[n] || n; }
 
-function normFD(n){ return fdNameMap[n] || n; }
+// ---- SCORE STORE ----
+const scoreStore = {};
 
-// Score store: "Country1|Country2" -> {home, away, status, minute}
-const fdScoreStore = {};
-
-async function fetchFDMatches() {
+async function fetchDate(dateStr) {
   try {
-    // Fetch all WC 2026 matches
-    const res = await fetch(`${FD_BASE}/competitions/${WC_CODE}/matches?season=2026`, {
-      headers: { "X-Auth-Token": FD_KEY }
-    });
-    if (!res.ok) { console.warn("football-data API error:", res.status); return; }
+    const url = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=" + dateStr;
+    const res = await fetch(url);
+    if (!res.ok) return;
     const data = await res.json();
-    const matches = data.matches || [];
-
-    let anyLive = false;
-
-    matches.forEach(match => {
-      const h = normFD(match.homeTeam.name);
-      const a = normFD(match.awayTeam.name);
-      const hs = match.score.fullTime.home !== null ? match.score.fullTime.home :
-                 match.score.halfTime.home !== null ? match.score.halfTime.home : 0;
-      const as_ = match.score.fullTime.away !== null ? match.score.fullTime.away :
-                  match.score.halfTime.away !== null ? match.score.halfTime.away : 0;
-      const status = match.status; // SCHEDULED, TIMED, IN_PLAY, PAUSED, FINISHED
-      const minute = match.minute || null;
-
-      if (status === "IN_PLAY" || status === "PAUSED") anyLive = true;
-
-      const entry = { home: hs, away: as_, status, minute };
-      fdScoreStore[h + "|" + a] = { ...entry, reversed: false };
-      fdScoreStore[a + "|" + h] = { home: as_, away: hs, status, minute, reversed: true };
+    (data.events || []).forEach(ev => {
+      const comps = ev.competitions && ev.competitions[0];
+      if (!comps) return;
+      const competitors = comps.competitors || [];
+      if (competitors.length < 2) return;
+      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
+      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
+      const h = normName(home.team.displayName);
+      const a = normName(away.team.displayName);
+      const hs = home.score || "0";
+      const as_ = away.score || "0";
+      const status = ev.status && ev.status.type && ev.status.type.name;
+      const clock  = ev.status && ev.status.displayClock;
+      scoreStore[h+"|"+a] = { home:hs, away:as_, status, clock, reversed:false };
+      scoreStore[a+"|"+h] = { home:as_, away:hs, status, clock, reversed:true };
     });
-
-    updateFDCards();
-
-    // Refresh every 30s if live, every 90s otherwise
-    setTimeout(fetchFDMatches, anyLive ? 30000 : 90000);
-
-  } catch(e) {
-    console.warn("football-data fetch error:", e);
-    setTimeout(fetchFDMatches, 90000);
-  }
+  } catch(e) {}
 }
 
-function fdStatusLabel(status, minute) {
-  if (status === "SCHEDULED" || status === "TIMED") return null;
-  if (status === "IN_PLAY") return minute ? minute + "'" : "LIVE";
-  if (status === "PAUSED") return "HT";
-  if (status === "FINISHED") return "FT";
+let anyLiveGlobal = false;
+
+async function fetchAllScores() {
+  await Promise.all(matchDates.map(fetchDate));
+  updateMatchCards();
+  updateStandings();
+  const delay = anyLiveGlobal ? 30000 : 120000;
+  setTimeout(fetchAllScores, delay);
+}
+
+function statusLabel(status, clock) {
+  if (!status || status === "STATUS_SCHEDULED" || status === "STATUS_TIMED") return null;
+  if (status === "STATUS_IN_PROGRESS") return clock ? clock + "'" : "LIVE";
+  if (status === "STATUS_HALFTIME") return "HT";
+  if (status === "STATUS_FINAL" || status === "STATUS_FULL_TIME") return "FT";
   return null;
 }
 
-function updateFDCards() {
-  const cards = document.querySelectorAll("a.match-card");
-  cards.forEach(card => {
+// ---- UPDATE MATCH CARDS ----
+function updateMatchCards() {
+  anyLiveGlobal = false;
+  document.querySelectorAll("a.match-card").forEach(card => {
     const countries = card.querySelectorAll(".country-tag");
     if (countries.length < 2) return;
     const c1 = countries[0].textContent.trim();
     const c2 = countries[1].textContent.trim();
-    const entry = fdScoreStore[c1 + "|" + c2];
+    const entry = scoreStore[c1+"|"+c2];
     if (!entry) return;
-
-    const label = fdStatusLabel(entry.status, entry.minute);
+    const label = statusLabel(entry.status, entry.clock);
     if (!label) return;
 
     let scoreEl = card.querySelector(".live-score");
     if (!scoreEl) {
       scoreEl = document.createElement("div");
       scoreEl.className = "live-score";
-      const meta = card.querySelector(".match-meta");
-      card.insertBefore(scoreEl, meta);
+      card.insertBefore(scoreEl, card.querySelector(".match-meta"));
     }
 
-    const isLive = entry.status === "IN_PLAY";
-    const isHT   = entry.status === "PAUSED";
-    const isFT   = entry.status === "FINISHED";
-    const statusClass = isLive ? "score-live" : isHT ? "score-ht" : "score-ft";
+    const isLive = entry.status === "STATUS_IN_PROGRESS";
+    const isHT   = entry.status === "STATUS_HALFTIME";
+    const isFT   = entry.status === "STATUS_FINAL" || entry.status === "STATUS_FULL_TIME";
+    if (isLive) anyLiveGlobal = true;
 
+    const cls = isLive ? "score-live" : isHT ? "score-ht" : "score-ft";
     scoreEl.innerHTML =
       `<div class="score-nums">${entry.home} - ${entry.away}</div>` +
-      `<div class="score-status ${statusClass}">${label}</div>`;
+      `<div class="score-status ${cls}">${label}</div>`;
 
     const timeEl = card.querySelector(".match-time");
     if (timeEl && !isFT) timeEl.style.opacity = "0.4";
     if (isLive) { card.style.borderLeft = "3px solid #e74c3c"; card.style.background = "#fffbfb"; }
-    else if (isFT) { card.style.opacity = "0.8"; }
+    else if (isFT) card.style.opacity = "0.85";
   });
 
   const ind = document.getElementById("refresh-indicator");
   if (ind) ind.textContent = "Scores last updated: " + new Date().toLocaleTimeString("en-GB");
 }
 
-// Add styles
-const fdStyle = document.createElement("style");
-fdStyle.textContent = `
-  .live-score { display:flex; flex-direction:column; align-items:center; min-width:52px; flex-shrink:0; }
-  .score-nums { font-size:17px; font-weight:700; color:#111; letter-spacing:1px; }
-  .score-status { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:1px; padding:1px 5px; border-radius:3px; }
-  .score-live { background:#e74c3c; color:#fff; }
-  .score-ht   { background:#f39c12; color:#fff; }
-  .score-ft   { background:#555;    color:#fff; }
-  #refresh-indicator { text-align:center; font-size:10px; color:#aaa; padding:8px; }
-`;
-document.head.appendChild(fdStyle);
-
-window.addEventListener("DOMContentLoaded", () => {
-  const fixtures = document.querySelector(".fixtures");
-  if (fixtures) {
-    const ind = document.createElement("div");
-    ind.id = "refresh-indicator";
-    ind.textContent = "Loading scores...";
-    fixtures.appendChild(ind);
-  }
-  fetchFDMatches();
-});
-</script>
-
-
-<style>
-/* ---- STANDINGS TABLE ---- */
-.standings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; padding:16px 0; }
-.standings-card { background:#fff; border:1px solid #ddd; overflow:hidden; }
-.standings-head { background:#1a2e52; color:#fff; padding:8px 12px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:8px; }
-.standings-head img { width:16px; height:11px; object-fit:cover; border:1px solid rgba(255,255,255,0.3); }
-table.standings-table { width:100%; border-collapse:collapse; font-size:12px; }
-table.standings-table th { background:#f0f0f0; padding:5px 8px; text-align:center; font-size:10px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:0.5px; }
-table.standings-table th:first-child { text-align:left; padding-left:10px; }
-table.standings-table td { padding:6px 8px; text-align:center; border-bottom:1px solid #f5f5f5; }
-table.standings-table td:first-child { text-align:left; padding-left:10px; }
-table.standings-table tr:last-child td { border-bottom:none; }
-table.standings-table tr:nth-child(-n+2) td:first-child { border-left:3px solid #27ae60; }
-table.standings-table tr.live-row { background:#fffbf0; }
-.team-cell { display:flex; align-items:center; gap:7px; }
-.team-cell img { width:20px; height:13px; object-fit:cover; border:1px solid #eee; flex-shrink:0; }
-.team-cell .player-name { font-weight:700; color:#111; }
-.team-cell .country-name { font-size:10px; color:#888; margin-left:2px; }
-.gd-pos { color:#27ae60; font-weight:600; }
-.gd-neg { color:#e74c3c; font-weight:600; }
-.pts-cell { font-weight:700; color:#1a2e52; }
-.form-cell { display:flex; gap:2px; justify-content:center; }
-.form-w { width:14px; height:14px; background:#27ae60; color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
-.form-d { width:14px; height:14px; background:#f39c12; color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
-.form-l { width:14px; height:14px; background:#e74c3c; color:#fff; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; }
-#standings-updated { text-align:center; font-size:10px; color:#aaa; padding:6px; }
-</style>
-
-<script>
-// ============================================================
-// GROUP STANDINGS — calculated from match results
-// ============================================================
-
-// Group definitions: group -> [country names]
+// ---- STANDINGS ----
 const groupTeams = {
   A: ["Mexico","South Africa","South Korea","Czechia"],
   B: ["Canada","Switzerland","Qatar","Bosnia"],
@@ -666,137 +603,180 @@ const groupTeams = {
   L: ["England","Croatia","Ghana","Panama"]
 };
 
-// Player and flag for each country
 const teamInfo = {
-  "Mexico":        { player:"Liv",     flag:"mx" },
-  "South Africa":  { player:"Air",     flag:"za" },
-  "South Korea":   { player:"Marsh",   flag:"kr" },
-  "Czechia":       { player:"Kai",     flag:"cz" },
-  "Canada":        { player:"Richard", flag:"ca" },
-  "Switzerland":   { player:"Nojo",    flag:"ch" },
-  "Qatar":         { player:"Marsh",   flag:"qa" },
-  "Bosnia":        { player:"TJ",      flag:"ba" },
-  "Brazil":        { player:"Mount",   flag:"br" },
-  "Morocco":       { player:"Kai",     flag:"ma" },
-  "Haiti":         { player:"Nojo",    flag:"ht" },
-  "Scotland":      { player:"Louise",  flag:"gb-sct" },
-  "USA":           { player:"Smevy",   flag:"us" },
-  "Paraguay":      { player:"Ivan",    flag:"py" },
-  "Australia":     { player:"Kai",     flag:"au" },
-  "Turkey":        { player:"Richard", flag:"tr" },
-  "Germany":       { player:"Seas",    flag:"de" },
-  "Curacao":       { player:"Liv",     flag:"cw" },
-  "Cote d'Ivoire":{ player:"Mount",   flag:"ci" },
-  "Ecuador":       { player:"Melvin",  flag:"ec" },
-  "Netherlands":   { player:"Marsh",   flag:"nl" },
-  "Japan":         { player:"Air",     flag:"jp" },
-  "Sweden":        { player:"Air",     flag:"se" },
-  "Tunisia":       { player:"TJ",      flag:"tn" },
-  "Belgium":       { player:"Smevy",   flag:"be" },
-  "Egypt":         { player:"Nojo",    flag:"eg" },
-  "Iran":          { player:"Seas",    flag:"ir" },
-  "New Zealand":   { player:"Samuel",  flag:"nz" },
-  "Spain":         { player:"Samuel",  flag:"es" },
-  "Cabo Verde":    { player:"Mount",   flag:"cv" },
-  "Saudi Arabia":  { player:"Louise",  flag:"sa" },
-  "Uruguay":       { player:"Louise",  flag:"uy" },
-  "France":        { player:"Coops",   flag:"fr" },
-  "Senegal":       { player:"Liv",     flag:"sn" },
-  "Iraq":          { player:"Seas",    flag:"iq" },
-  "Norway":        { player:"Abbie",   flag:"no" },
-  "Argentina":     { player:"Abbie",   flag:"ar" },
-  "Algeria":       { player:"Coops",   flag:"dz" },
-  "Austria":       { player:"Samuel",  flag:"at" },
-  "Jordan":        { player:"Smevy",   flag:"jo" },
-  "Portugal":      { player:"Melvin",  flag:"pt" },
-  "Uzbekistan":    { player:"Melvin",  flag:"uz" },
-  "DR Congo":      { player:"Abbie",   flag:"cd" },
-  "Colombia":      { player:"Ivan",    flag:"co" },
-  "England":       { player:"Richard", flag:"gb-eng" },
-  "Croatia":       { player:"TJ",      flag:"hr" },
-  "Ghana":         { player:"Coops",   flag:"gh" },
-  "Panama":        { player:"Ivan",    flag:"pa" }
+  "Mexico":{"player":"Liv","flag":"mx"},"South Africa":{"player":"Air","flag":"za"},
+  "South Korea":{"player":"Marsh","flag":"kr"},"Czechia":{"player":"Kai","flag":"cz"},
+  "Canada":{"player":"Richard","flag":"ca"},"Switzerland":{"player":"Nojo","flag":"ch"},
+  "Qatar":{"player":"Marsh","flag":"qa"},"Bosnia":{"player":"TJ","flag":"ba"},
+  "Brazil":{"player":"Mount","flag":"br"},"Morocco":{"player":"Kai","flag":"ma"},
+  "Haiti":{"player":"Nojo","flag":"ht"},"Scotland":{"player":"Louise","flag":"gb-sct"},
+  "USA":{"player":"Smevy","flag":"us"},"Paraguay":{"player":"Ivan","flag":"py"},
+  "Australia":{"player":"Kai","flag":"au"},"Turkey":{"player":"Richard","flag":"tr"},
+  "Germany":{"player":"Seas","flag":"de"},"Curacao":{"player":"Liv","flag":"cw"},
+  "Cote d'Ivoire":{"player":"Mount","flag":"ci"},"Ecuador":{"player":"Melvin","flag":"ec"},
+  "Netherlands":{"player":"Marsh","flag":"nl"},"Japan":{"player":"Air","flag":"jp"},
+  "Sweden":{"player":"Air","flag":"se"},"Tunisia":{"player":"TJ","flag":"tn"},
+  "Belgium":{"player":"Smevy","flag":"be"},"Egypt":{"player":"Nojo","flag":"eg"},
+  "Iran":{"player":"Seas","flag":"ir"},"New Zealand":{"player":"Samuel","flag":"nz"},
+  "Spain":{"player":"Samuel","flag":"es"},"Cabo Verde":{"player":"Mount","flag":"cv"},
+  "Saudi Arabia":{"player":"Louise","flag":"sa"},"Uruguay":{"player":"Louise","flag":"uy"},
+  "France":{"player":"Coops","flag":"fr"},"Senegal":{"player":"Liv","flag":"sn"},
+  "Iraq":{"player":"Seas","flag":"iq"},"Norway":{"player":"Abbie","flag":"no"},
+  "Argentina":{"player":"Abbie","flag":"ar"},"Algeria":{"player":"Coops","flag":"dz"},
+  "Austria":{"player":"Samuel","flag":"at"},"Jordan":{"player":"Smevy","flag":"jo"},
+  "Portugal":{"player":"Melvin","flag":"pt"},"Uzbekistan":{"player":"Melvin","flag":"uz"},
+  "DR Congo":{"player":"Abbie","flag":"cd"},"Colombia":{"player":"Ivan","flag":"co"},
+  "England":{"player":"Richard","flag":"gb-eng"},"Croatia":{"player":"TJ","flag":"hr"},
+  "Ghana":{"player":"Coops","flag":"gh"},"Panama":{"player":"Ivan","flag":"pa"}
 };
 
-// ESPN name normalisation (same as live scores section)
-const standingsNameMap = {
-  "Czech Republic":"Czechia","Bosnia and Herzegovina":"Bosnia","Bosnia-Herzegovina":"Bosnia",
-  "United States":"USA","Ivory Coast":"Cote d'Ivoire","Côte d'Ivoire":"Cote d'Ivoire",
-  "Cape Verde":"Cabo Verde","Curacao":"Curacao","Curaçao":"Curacao",
-  "Congo DR":"DR Congo","DR Congo":"DR Congo","Scotland":"Scotland"
-};
-function normName(n){ return standingsNameMap[n] || n; }
-
-// Standings data store: country -> stats object
 let standingsData = {};
 
 function initStandings() {
   standingsData = {};
-  Object.values(groupTeams).flat().forEach(team => {
-    standingsData[team] = { p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0, form:[] };
+  Object.values(groupTeams).flat().forEach(t => {
+    standingsData[t] = { p:0, w:0, d:0, l:0, gf:0, ga:0, pts:0, form:[] };
   });
 }
 
-function applyResult(home, away, homeScore, awayScore, status) {
-  if (!standingsData[home] || !standingsData[away]) return;
-  const hg = parseInt(homeScore) || 0;
-  const ag = parseInt(awayScore) || 0;
+function applyResult(h, a, hs, as_, status) {
+  if (!standingsData[h] || !standingsData[a]) return;
+  const hg = parseInt(hs)||0, ag = parseInt(as_)||0;
   const isFinal = status === "STATUS_FINAL" || status === "STATUS_FULL_TIME";
   const isLive  = status === "STATUS_IN_PROGRESS" || status === "STATUS_HALFTIME";
   if (!isFinal && !isLive) return;
 
-  standingsData[home].p++;
-  standingsData[away].p++;
-  standingsData[home].gf += hg; standingsData[home].ga += ag;
-  standingsData[away].gf += ag; standingsData[away].ga += hg;
+  standingsData[h].p++; standingsData[a].p++;
+  standingsData[h].gf += hg; standingsData[h].ga += ag;
+  standingsData[a].gf += ag; standingsData[a].ga += hg;
 
   if (hg > ag) {
-    standingsData[home].w++; standingsData[home].pts += 3;
-    standingsData[away].l++;
-    standingsData[home].form.push("W"); standingsData[away].form.push("L");
+    standingsData[h].w++; standingsData[h].pts += 3; standingsData[a].l++;
+    standingsData[h].form.push("W"); standingsData[a].form.push("L");
   } else if (hg < ag) {
-    standingsData[away].w++; standingsData[away].pts += 3;
-    standingsData[home].l++;
-    standingsData[home].form.push("L"); standingsData[away].form.push("W");
+    standingsData[a].w++; standingsData[a].pts += 3; standingsData[h].l++;
+    standingsData[h].form.push("L"); standingsData[a].form.push("W");
   } else {
-    standingsData[home].d++; standingsData[home].pts++;
-    standingsData[away].d++; standingsData[away].pts++;
-    standingsData[home].form.push("D"); standingsData[away].form.push("D");
+    standingsData[h].d++; standingsData[h].pts++;
+    standingsData[a].d++; standingsData[a].pts++;
+    standingsData[h].form.push("D"); standingsData[a].form.push("D");
   }
 }
 
-async function fetchFDStandings() {
-  try {
-    const res = await fetch(`${FD_BASE}/competitions/${WC_CODE}/matches?season=2026`, {
-      headers: { "X-Auth-Token": FD_KEY }
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    (data.matches || []).forEach(match => {
-      const h = normFD(match.homeTeam.name);
-      const a = normFD(match.awayTeam.name);
-      const status = match.status;
-      const hs = match.score.fullTime.home !== null ? match.score.fullTime.home :
-                 match.score.halfTime.home !== null ? match.score.halfTime.home : 0;
-      const as_ = match.score.fullTime.away !== null ? match.score.fullTime.away :
-                  match.score.halfTime.away !== null ? match.score.halfTime.away : 0;
-      const isCountable = status === "IN_PLAY" || status === "PAUSED" || status === "FINISHED";
-      if (isCountable) applyResult(h, a, hs, as_, 
-        status === "FINISHED" ? "STATUS_FINAL" : "STATUS_IN_PROGRESS");
-    });
-  } catch(e) {}
-}
-
-async function refreshStandings() {
+function updateStandings() {
   initStandings();
-  await fetchFDStandings();
+  // Build standings from scoreStore
+  Object.entries(scoreStore).forEach(([key, entry]) => {
+    if (entry.reversed) return; // only process each match once
+    const [h, a] = key.split("|");
+    applyResult(h, a, entry.home, entry.away, entry.status);
+  });
   renderStandings();
-  setTimeout(refreshStandings, 60000);
 }
 
-// Kick off standings when page loads
+function sortGroup(teams) {
+  return [...teams].sort((a,b) => {
+    const da = standingsData[a]||{pts:0,gf:0,ga:0};
+    const db = standingsData[b]||{pts:0,gf:0,ga:0};
+    if (db.pts !== da.pts) return db.pts - da.pts;
+    const gdA = da.gf-da.ga, gdB = db.gf-db.ga;
+    if (gdB !== gdA) return gdB - gdA;
+    if (db.gf !== da.gf) return db.gf - da.gf;
+    return a.localeCompare(b);
+  });
+}
+
+function formBadge(r) {
+  if (r==="W") return `<div class="form-w">W</div>`;
+  if (r==="D") return `<div class="form-d">D</div>`;
+  return `<div class="form-l">L</div>`;
+}
+
+function renderStandings() {
+  const container = document.getElementById("standings-container");
+  if (!container) return;
+  let html = `<div class="standings-grid">`;
+  Object.entries(groupTeams).forEach(([grp, teams]) => {
+    const sorted = sortGroup(teams);
+    html += `<div class="standings-card">
+      <div class="standings-head">GROUP ${grp}</div>
+      <table class="standings-table">
+        <thead><tr>
+          <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th>
+          <th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th>
+        </tr></thead><tbody>`;
+    sorted.forEach((team, idx) => {
+      const s = standingsData[team]||{p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,form:[]};
+      const gd = s.gf-s.ga;
+      const gdStr = gd>0 ? `+${gd}` : `${gd}`;
+      const gdClass = gd>0 ? "gd-pos" : gd<0 ? "gd-neg" : "";
+      const info = teamInfo[team]||{player:team,flag:"un"};
+      const recentForm = s.form.slice(-3);
+      const formHtml = recentForm.length
+        ? `<div class="form-cell">${recentForm.map(formBadge).join("")}</div>`
+        : `<span style="color:#ccc;font-size:10px;">-</span>`;
+      const qualBorder = idx < 2 ? 'style="border-left:3px solid #27ae60"' : '';
+      html += `<tr>
+        <td ${qualBorder}><div class="team-cell">
+          <img src="https://flagcdn.com/w40/${info.flag}.png" alt="">
+          <span class="player-name">${info.player}</span>
+          <span class="country-name">${team}</span>
+        </div></td>
+        <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+        <td>${s.gf}</td><td>${s.ga}</td>
+        <td class="${gdClass}">${gdStr}</td>
+        <td class="pts-cell">${s.pts}</td>
+        <td>${formHtml}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  });
+  html += `</div><div id="standings-updated" style="text-align:center;font-size:10px;color:#aaa;padding:6px;">Standings last updated: ${new Date().toLocaleTimeString("en-GB")}</div>`;
+  container.innerHTML = html;
+}
+
+// ---- STYLES ----
+const style = document.createElement("style");
+style.textContent = `
+  .live-score{display:flex;flex-direction:column;align-items:center;min-width:52px;flex-shrink:0}
+  .score-nums{font-size:17px;font-weight:700;color:#111;letter-spacing:1px}
+  .score-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:1px;padding:1px 5px;border-radius:3px}
+  .score-live{background:#e74c3c;color:#fff}.score-ht{background:#f39c12;color:#fff}.score-ft{background:#555;color:#fff}
+  #refresh-indicator{text-align:center;font-size:10px;color:#aaa;padding:8px}
+  .standings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:16px 0}
+  .standings-card{background:#fff;border:1px solid #ddd;overflow:hidden}
+  .standings-head{background:#1a2e52;color:#fff;padding:8px 12px;font-size:12px;font-weight:700}
+  table.standings-table{width:100%;border-collapse:collapse;font-size:12px}
+  table.standings-table th{background:#f0f0f0;padding:5px 8px;text-align:center;font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px}
+  table.standings-table th:first-child{text-align:left;padding-left:10px}
+  table.standings-table td{padding:6px 8px;text-align:center;border-bottom:1px solid #f5f5f5}
+  table.standings-table td:first-child{text-align:left;padding-left:10px}
+  table.standings-table tr:last-child td{border-bottom:none}
+  .team-cell{display:flex;align-items:center;gap:7px}
+  .team-cell img{width:20px;height:13px;object-fit:cover;border:1px solid #eee;flex-shrink:0}
+  .player-name{font-weight:700;color:#111}.country-name{font-size:10px;color:#888;margin-left:2px}
+  .gd-pos{color:#27ae60;font-weight:600}.gd-neg{color:#e74c3c;font-weight:600}
+  .pts-cell{font-weight:700;color:#1a2e52}
+  .form-cell{display:flex;gap:2px;justify-content:center}
+  .form-w,.form-d,.form-l{width:14px;height:14px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;border-radius:2px;color:#fff}
+  .form-w{background:#27ae60}.form-d{background:#f39c12}.form-l{background:#e74c3c}
+`;
+document.head.appendChild(style);
+
+// ---- INIT ----
 window.addEventListener("DOMContentLoaded", () => {
-  refreshStandings();
+  const fixtures = document.querySelector(".fixtures");
+  if (fixtures) {
+    const ind = document.createElement("div");
+    ind.id = "refresh-indicator";
+    ind.textContent = "Loading scores...";
+    fixtures.appendChild(ind);
+  }
+  // Show empty standings immediately
+  initStandings();
+  renderStandings();
+  // Then fetch live data
+  fetchAllScores();
 });
 </script>
 
