@@ -3,78 +3,296 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FIFA World Cup 2026 — Schedule</title>
+<title>World Cup 2026 — Live Scores & Fixtures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===================== TOKENS ===================== */
+:root {
+  --bg:          #0d0f14;
+  --bg-card:     #131720;
+  --bg-card2:    #181d27;
+  --bg-header:   #0a0c11;
+  --border:      #252b38;
+  --border-light:#1e2430;
+  --text:        #e8ecf4;
+  --text-sub:    #8892a4;
+  --text-muted:  #525d72;
+  --gold:        #f0b429;
+  --gold-dim:    #b8882a;
+  --gold-glow:   rgba(240,180,41,0.12);
+  --green:       #1a6b3c;
+  --green-bright:#22c55e;
+  --red:         #dc2626;
+  --red-dim:     rgba(220,38,38,0.12);
+  --navy:        #0f1629;
+  --accent:      #2563eb;
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222; font-size:14px; }
-.top-bar { background:#bb1919; }
-.top-bar-inner { max-width:1440px; margin:0 auto; display:flex; align-items:center; padding:0 16px; }
-.bbc-logo { background:#fff; color:#bb1919; font-weight:900; font-size:22px; padding:6px 10px; letter-spacing:-1px; line-height:1; margin-right:20px; text-decoration:none; font-style:italic; }
-.top-nav a { color:#fff; text-decoration:none; padding:12px 14px; display:inline-block; font-size:13px; font-weight:600; }
-.top-nav a:hover { background:rgba(0,0,0,0.15); }
-.sport-nav { background:#1a1a1a; overflow-x:auto; white-space:nowrap; }
-.sport-nav-inner { max-width:1440px; margin:0 auto; padding:0 16px; }
-.sport-nav a { color:#ccc; text-decoration:none; padding:10px 14px; display:inline-block; font-size:13px; }
-.sport-nav a:hover { color:#fff; }
-.sport-nav a.active { color:#fff; border-bottom:3px solid #bb1919; }
-.hero { background:linear-gradient(135deg,#0a1628 0%,#1a2e52 60%,#0f3460 100%); padding:24px 16px 20px; color:#fff; border-bottom:4px solid #bb1919; }
-.hero-inner { max-width:1440px; margin:0 auto; display:flex; align-items:center; gap:20px; }
-.wc-badge { width:64px; height:64px; background:#bb1919; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:10px; font-weight:900; text-align:center; line-height:1.2; }
-.hero h1 { font-size:24px; font-weight:700; line-height:1.1; }
-.hero p { color:#aac4e8; font-size:13px; margin-top:4px; }
-.hero-dates { color:#e8c84a; font-size:12px; font-weight:600; margin-top:5px; }
-.tab-nav { background:#fff; border-bottom:1px solid #ddd; position:sticky; top:0; z-index:100; }
-.tab-nav-inner { max-width:1440px; margin:0 auto; padding:0 16px; display:flex; overflow-x:auto; }
-.tab-btn { padding:12px 15px; background:none; border:none; font-size:13px; font-weight:700; color:#555; cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; }
-.tab-btn:hover { color:#222; }
-.tab-btn.active { color:#bb1919; border-bottom-color:#bb1919; }
-.main { max-width:1440px; margin:0 auto; padding:16px; display:grid; grid-template-columns:220px 1fr 240px; gap:18px; align-items:start; }
-/* Groups panel */
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); font-size:14px; min-height:100vh; }
+
+/* ===================== TOP BAR ===================== */
+.top-bar {
+  background:var(--bg-header);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+}
+.top-bar-inner {
+  max-width:1440px; margin:0 auto;
+  display:flex; align-items:center; height:44px; gap:0;
+}
+.site-logo {
+  display:flex; align-items:center; gap:10px;
+  text-decoration:none; margin-right:28px;
+}
+.logo-icon {
+  width:28px; height:28px;
+  background:linear-gradient(135deg, var(--gold) 0%, #c97f10 100%);
+  border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px; color:#000; letter-spacing:0.5px;
+  flex-shrink:0;
+}
+.logo-text {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:18px; letter-spacing:1.5px;
+  color:var(--text);
+  line-height:1;
+}
+.logo-text span { color:var(--gold); }
+.top-nav { display:flex; gap:0; }
+.top-nav a {
+  color:var(--text-sub); text-decoration:none;
+  padding:0 14px; height:44px; display:flex; align-items:center;
+  font-size:12px; font-weight:500; letter-spacing:0.3px;
+  border-bottom:2px solid transparent;
+  transition:color 0.15s, border-color 0.15s;
+}
+.top-nav a:hover { color:var(--text); }
+.top-nav a.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* ===================== HERO ===================== */
+.hero {
+  background:linear-gradient(180deg, #0a0f1e 0%, #0d1424 60%, var(--bg) 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%);
+  opacity:0.6;
+}
+.hero::after {
+  content:'';
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background:radial-gradient(ellipse 60% 100% at 50% 120%, rgba(240,180,41,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-inner {
+  max-width:1440px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:28px 0 24px;
+  position:relative; z-index:1;
+}
+.hero-left { display:flex; flex-direction:column; gap:6px; }
+.hero-eyebrow {
+  font-size:11px; font-weight:600; letter-spacing:2.5px;
+  text-transform:uppercase; color:var(--gold);
+}
+.hero-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:42px; letter-spacing:2px; line-height:1;
+  color:var(--text);
+}
+.hero-title span { color:var(--gold); }
+.hero-sub {
+  font-size:12px; color:var(--text-sub); margin-top:2px;
+  font-weight:400; letter-spacing:0.3px;
+}
+.hero-right { display:flex; gap:28px; }
+.hero-stat { text-align:center; }
+.hero-stat-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:30px; letter-spacing:1px; color:var(--gold); line-height:1;
+}
+.hero-stat-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.hero-divider { width:1px; background:var(--border); align-self:stretch; margin:4px 0; }
+
+/* ===================== TAB NAV ===================== */
+.tab-nav {
+  background:var(--bg-header);
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+  padding:0 20px;
+}
+.tab-nav-inner {
+  max-width:1440px; margin:0 auto;
+  display:flex; overflow-x:auto; gap:0;
+}
+.tab-btn {
+  padding:0 18px; height:44px;
+  background:none; border:none;
+  font-family:'Inter',sans-serif;
+  font-size:12px; font-weight:600; letter-spacing:0.5px;
+  text-transform:uppercase;
+  color:var(--text-muted); cursor:pointer;
+  border-bottom:2px solid transparent;
+  white-space:nowrap;
+  transition:color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* ===================== LAYOUT ===================== */
+.main {
+  max-width:1440px; margin:0 auto; padding:20px;
+  display:grid; grid-template-columns:210px 1fr 230px; gap:20px; align-items:start;
+}
+
+/* ===================== GROUPS PANEL ===================== */
 .groups-panel {}
-.gp-card { background:#fff; border:1px solid #ddd; margin-bottom:6px; overflow:hidden; }
-.gp-head { background:#1a2e52; color:#fff; padding:6px 10px; font-size:11px; font-weight:700; letter-spacing:0.5px; display:flex; justify-content:space-between; align-items:center; }
-.gp-head span { font-size:10px; color:#aac4e8; }
-.gp-team { display:flex; align-items:center; gap:7px; padding:4px 10px; border-bottom:1px solid #f0f0f0; font-size:12px; }
+.panel-title {
+  font-size:10px; font-weight:700; text-transform:uppercase;
+  letter-spacing:2px; color:var(--text-muted);
+  margin-bottom:10px; padding-left:2px;
+}
+.gp-card { background:var(--bg-card); border:1px solid var(--border); margin-bottom:6px; overflow:hidden; border-radius:4px; }
+.gp-head {
+  background:var(--navy); padding:6px 10px;
+  font-size:11px; font-weight:700; letter-spacing:0.5px;
+  color:var(--text); display:flex; justify-content:space-between; align-items:center;
+  border-bottom:1px solid var(--border);
+}
+.gp-head span { font-size:9px; color:var(--text-muted); font-weight:400; }
+.gp-team {
+  display:flex; align-items:center; gap:7px;
+  padding:5px 10px; border-bottom:1px solid var(--border-light); font-size:11px;
+}
 .gp-team:last-child { border-bottom:none; }
-.gp-flag { width:22px; height:15px; object-fit:cover; border:1px solid #eee; flex-shrink:0; }
-.gp-country { font-weight:600; color:#222; }
-.gp-player { font-size:10px; color:#888; margin-left:auto; }
-/* Fixtures */
+.gp-flag { width:20px; height:13px; object-fit:cover; border-radius:1px; flex-shrink:0; }
+.gp-country { font-weight:600; color:var(--text); flex:1; }
+.gp-player { font-size:10px; color:var(--gold); font-weight:600; }
+
+/* ===================== FIXTURES ===================== */
 .fixtures { min-width:0; }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
-.phase-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#fff; background:#bb1919; padding:5px 12px; margin:16px 0 0; }
-.phase-label:first-child { margin-top:0; }
-.date-header { background:#222; color:#fff; padding:7px 12px; font-size:12px; font-weight:700; }
-.match-card { background:#fff; border:1px solid #ddd; border-top:none; display:flex; align-items:center; padding:9px 12px; gap:8px; text-decoration:none; color:inherit; }
-.match-card:hover { background:#f9f9f9; }
-.match-card + .match-card { border-top:1px solid #eee; }
-.match-time { width:42px; text-align:center; font-size:11px; font-weight:700; color:#444; flex-shrink:0; line-height:1.3; }
-.match-time .tz { font-size:9px; color:#888; font-weight:400; display:block; }
+
+.phase-label {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:14px; letter-spacing:2px;
+  color:var(--gold); padding:14px 0 6px;
+  border-bottom:1px solid var(--gold-dim);
+  margin-bottom:0;
+}
+.phase-label:first-child { padding-top:0; }
+
+.date-header {
+  background:var(--bg-card2);
+  border:1px solid var(--border);
+  border-bottom:none;
+  padding:7px 14px;
+  font-size:11px; font-weight:700; letter-spacing:0.8px;
+  text-transform:uppercase; color:var(--text-sub);
+  margin-top:10px;
+  border-radius:4px 4px 0 0;
+}
+
+.match-card {
+  background:var(--bg-card);
+  border:1px solid var(--border); border-top:none;
+  display:flex; align-items:center; padding:10px 14px; gap:10px;
+  text-decoration:none; color:inherit;
+  transition:background 0.12s;
+}
+.match-card:hover { background:var(--bg-card2); }
+.match-card + .match-card { border-top:none; }
+.match-card:last-of-type { border-radius:0 0 4px 4px; }
+
+.match-time {
+  width:44px; text-align:center;
+  font-size:12px; font-weight:700; color:var(--text-sub); flex-shrink:0; line-height:1.3;
+}
+.match-time .tz { font-size:9px; color:var(--text-muted); font-weight:400; display:block; }
+
 .teams { flex:1; min-width:0; }
 .team-row { display:flex; align-items:center; gap:8px; padding:2px 0; }
-.team-row + .team-row { margin-top:3px; }
-.flag { width:26px; height:17px; object-fit:cover; border:1px solid #ddd; flex-shrink:0; }
-.team-name { font-size:13px; font-weight:700; color:#111; }
-.country-tag { font-size:10px; color:#999; margin-left:3px; }
-.vs-col { width:20px; text-align:center; flex-shrink:0; font-size:10px; font-weight:700; color:#ccc; }
-.match-meta { text-align:right; flex-shrink:0; min-width:105px; }
-.group-pill { display:inline-block; background:#1a2e52; color:#fff; font-size:9px; font-weight:700; padding:2px 6px; border-radius:8px; margin-bottom:3px; }
-.venue { font-size:10px; color:#777; line-height:1.4; }
-/* Knockout */
-.ko-note { background:#fff3cd; border:1px solid #ffc107; padding:10px 14px; font-size:12px; color:#555; margin:12px 0; }
-.ko-round { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#fff; background:#1a2e52; padding:5px 12px; margin:10px 0 0; }
-.ko-match { background:#fff; border:1px solid #ddd; border-top:none; display:flex; align-items:center; padding:9px 12px; gap:8px; }
-.ko-slot { font-size:12px; color:#666; font-style:italic; }
-/* Sidebar */
+.team-row + .team-row { margin-top:4px; }
+.flag { width:24px; height:16px; object-fit:cover; border-radius:1px; flex-shrink:0; border:1px solid var(--border); }
+.team-name { font-size:13px; font-weight:700; color:var(--text); }
+.country-tag { font-size:10px; color:var(--text-muted); margin-left:2px; }
+
+.vs-col { width:18px; text-align:center; flex-shrink:0; font-size:10px; font-weight:700; color:var(--text-muted); }
+
+.match-meta { text-align:right; flex-shrink:0; min-width:100px; }
+.group-pill {
+  display:inline-block;
+  background:var(--navy); color:var(--gold);
+  font-size:9px; font-weight:700; padding:2px 7px; border-radius:10px;
+  margin-bottom:3px; letter-spacing:0.5px;
+  border:1px solid var(--gold-dim);
+}
+.venue { font-size:10px; color:var(--text-muted); line-height:1.4; }
+
+/* ===================== LIVE SCORES ===================== */
+.live-score { display:flex; flex-direction:column; align-items:center; min-width:58px; flex-shrink:0; }
+.score-nums { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--text); letter-spacing:2px; line-height:1; }
+.score-status { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; padding:2px 6px; border-radius:3px; }
+.score-live { background:var(--red); color:#fff; animation:pulse 1.5s infinite; }
+.score-ht   { background:#92400e; color:#fcd34d; }
+.score-ft   { background:var(--border); color:var(--text-sub); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+#refresh-indicator { text-align:center; font-size:10px; color:var(--text-muted); padding:12px; }
+
+/* ===================== KNOCKOUT ===================== */
+.ko-note { background:var(--bg-card2); border:1px solid var(--border); border-left:3px solid var(--gold); padding:10px 14px; font-size:12px; color:var(--text-sub); margin:12px 0; border-radius:0 4px 4px 0; }
+.ko-round { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1.5px; color:var(--gold); padding:12px 0 5px; border-bottom:1px solid var(--gold-dim); margin:10px 0 0; }
+.ko-match { background:var(--bg-card); border:1px solid var(--border); border-top:none; display:flex; align-items:center; padding:10px 14px; gap:10px; }
+.ko-slot { font-size:12px; color:var(--text-sub); font-style:italic; }
+
+/* ===================== STANDINGS ===================== */
+.standings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; padding:16px 0; }
+.standings-card { background:var(--bg-card); border:1px solid var(--border); overflow:hidden; border-radius:4px; }
+.standings-head { background:var(--navy); color:var(--gold); padding:8px 12px; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:1.5px; border-bottom:1px solid var(--border); }
+table.standings-table { width:100%; border-collapse:collapse; font-size:11px; }
+table.standings-table th { background:var(--bg-card2); padding:5px 7px; text-align:center; font-size:9px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border); }
+table.standings-table th:first-child { text-align:left; padding-left:10px; }
+table.standings-table td { padding:7px 7px; text-align:center; border-bottom:1px solid var(--border-light); color:var(--text); }
+table.standings-table td:first-child { text-align:left; padding-left:10px; }
+table.standings-table tr:last-child td { border-bottom:none; }
+table.standings-table tr:hover td { background:var(--bg-card2); }
+.team-cell { display:flex; align-items:center; gap:7px; }
+.team-cell img { width:18px; height:12px; object-fit:cover; border-radius:1px; border:1px solid var(--border); flex-shrink:0; }
+.player-name { font-weight:700; color:var(--text); }
+.country-name { font-size:9px; color:var(--text-muted); margin-left:1px; }
+.gd-pos { color:var(--green-bright); font-weight:600; }
+.gd-neg { color:var(--red); font-weight:600; }
+.pts-cell { font-weight:700; color:var(--gold); }
+.form-cell { display:flex; gap:2px; justify-content:center; }
+.form-w,.form-d,.form-l { width:14px; height:14px; font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; border-radius:2px; color:#fff; }
+.form-w { background:#166534; } .form-d { background:#92400e; } .form-l { background:#991b1b; }
+#standings-updated { text-align:center; font-size:10px; color:var(--text-muted); padding:8px; }
+
+/* ===================== SIDEBAR ===================== */
 .sidebar {}
-.s-card { background:#fff; border:1px solid #ddd; margin-bottom:14px; overflow:hidden; }
-.s-title { background:#222; color:#fff; padding:8px 12px; font-size:12px; font-weight:700; }
-.s-group { padding:7px 12px; border-bottom:1px solid #eee; }
+.s-card { background:var(--bg-card); border:1px solid var(--border); margin-bottom:14px; overflow:hidden; border-radius:4px; }
+.s-title { background:var(--navy); color:var(--gold); padding:8px 12px; font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1.5px; border-bottom:1px solid var(--border); }
+.s-group { padding:6px 12px; border-bottom:1px solid var(--border-light); }
 .s-group:last-child { border-bottom:none; }
-.s-label { font-size:10px; font-weight:700; color:#bb1919; text-transform:uppercase; letter-spacing:0.7px; margin-bottom:3px; }
-.s-team { display:flex; align-items:center; gap:6px; padding:2px 0; font-size:11px; color:#333; }
-.s-flag { width:20px; height:13px; object-fit:cover; border:1px solid #eee; flex-shrink:0; }
+.s-label { font-size:10px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:3px; }
+.s-team { display:flex; align-items:center; gap:6px; padding:2px 0; font-size:11px; color:var(--text-sub); }
+.s-flag { width:18px; height:12px; object-fit:cover; border-radius:1px; border:1px solid var(--border); flex-shrink:0; }
+.date-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--border); margin-right:4px; }
+.date-dot.live { background:var(--green-bright); }
+.date-dot.gold { background:var(--gold); }
+
 @media(max-width:960px){ .main{grid-template-columns:1fr;} .groups-panel,.sidebar{display:none;} }
 </style>
 </head>
@@ -82,28 +300,36 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 
 <div class="top-bar">
   <div class="top-bar-inner">
-    <a class="bbc-logo" href="#">BBC</a>
+    <a class="site-logo" href="#">
+      <div class="logo-icon">WC</div>
+      <div class="logo-text">WORLD CUP <span>2026</span></div>
+    </a>
     <nav class="top-nav">
-      <a href="#">Sport</a><a href="#">Football</a><a href="#">Cricket</a><a href="#">Tennis</a>
+      <a href="#" class="active">Fixtures</a>
+      <a href="#">Standings</a>
+      <a href="#">Teams</a>
+      <a href="#">News</a>
     </nav>
   </div>
 </div>
-<div class="sport-nav">
-  <div class="sport-nav-inner">
-    <a href="#">Home</a><a href="#">Scores &amp; Fixtures</a><a href="#">Tables</a>
-    <a href="#" class="active">World Cup 2026</a><a href="#">Premier League</a><a href="#">Champions League</a>
-  </div>
-</div>
+
 <div class="hero">
   <div class="hero-inner">
-    <div class="wc-badge">FIFA<br>WORLD<br>CUP</div>
-    <div>
-      <h1>World Cup 2026 — Schedule &amp; Fixtures</h1>
-      <p>USA, Canada &amp; Mexico &bull; 48 teams &bull; 104 matches</p>
-      <div class="hero-dates">11 June – 19 July 2026</div>
+    <div class="hero-left">
+      <div class="hero-eyebrow">FIFA World Cup &bull; USA &bull; Canada &bull; Mexico</div>
+      <div class="hero-title">Live Scores <span>&amp;</span> Fixtures</div>
+      <div class="hero-sub">11 June &ndash; 19 July 2026 &nbsp;&bull;&nbsp; 16 venues &nbsp;&bull;&nbsp; All times BST</div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stat"><div class="hero-stat-num">48</div><div class="hero-stat-label">Teams</div></div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat"><div class="hero-stat-num">104</div><div class="hero-stat-label">Matches</div></div>
+      <div class="hero-divider"></div>
+      <div class="hero-stat"><div class="hero-stat-num">39</div><div class="hero-stat-label">Days</div></div>
     </div>
   </div>
 </div>
+
 <div class="tab-nav">
   <div class="tab-nav-inner">
     <button class="tab-btn active" onclick="showTab('group',this)">Group Stage</button>
@@ -117,10 +343,8 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 </div>
 
 <div class="main">
-
-<!-- LEFT: GROUPS PANEL -->
 <aside class="groups-panel">
-<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bb1919;margin-bottom:8px;">World Cup 2026 Groups</div>
+<div class="panel-title">Groups</div>
 
 <div class="gp-card"><div class="gp-head">Group A <span>Mexico City / Guadalajara</span></div>
 <div class="gp-team"><img src="https://flagcdn.com/w40/mx.png" class="gp-flag" alt=""><div class="gp-country">Mexico</div><div class="gp-player">Liv</div></div>
@@ -148,7 +372,7 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 
 <div class="gp-card"><div class="gp-head">Group E <span>Houston / Philadelphia</span></div>
 <div class="gp-team"><img src="https://flagcdn.com/w40/de.png" class="gp-flag" alt=""><div class="gp-country">Germany</div><div class="gp-player">Seas</div></div>
-<div class="gp-team"><img src="https://flagcdn.com/w40/cw.png" class="gp-flag" alt=""><div class="gp-country">Cura&ccedil;ao</div><div class="gp-player">Liv</div></div>
+<div class="gp-team"><img src="https://flagcdn.com/w40/cw.png" class="gp-flag" alt=""><div class="gp-country">Curaçao</div><div class="gp-player">Liv</div></div>
 <div class="gp-team"><img src="https://flagcdn.com/w40/ci.png" class="gp-flag" alt=""><div class="gp-country">Cote d'Ivoire</div><div class="gp-player">Mount</div></div>
 <div class="gp-team"><img src="https://flagcdn.com/w40/ec.png" class="gp-flag" alt=""><div class="gp-country">Ecuador</div><div class="gp-player">Melvin</div></div></div>
 
@@ -193,12 +417,12 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 <div class="gp-team"><img src="https://flagcdn.com/w40/hr.png" class="gp-flag" alt=""><div class="gp-country">Croatia</div><div class="gp-player">TJ</div></div>
 <div class="gp-team"><img src="https://flagcdn.com/w40/gh.png" class="gp-flag" alt=""><div class="gp-country">Ghana</div><div class="gp-player">Coops</div></div>
 <div class="gp-team"><img src="https://flagcdn.com/w40/pa.png" class="gp-flag" alt=""><div class="gp-country">Panama</div><div class="gp-player">Ivan</div></div></div>
-
 </aside>
 
-<!-- CENTRE: FIXTURES -->
 <div class="fixtures">
+
 <div id="tab-group" class="tab-content active">
+
 <div class="phase-label">Matchday 1 — 11–18 June 2026</div>
 <div class="date-header">Thursday 11 June 2026</div>
 <a class="match-card" href="#"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/mx.png" class="flag" alt=""><div class="team-name">Liv</div><span class="country-tag">Mexico</span></div><div class="team-row"><img src="https://flagcdn.com/w40/za.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">South Africa</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">GROUP A</div><div class="venue">Estadio Azteca, Mexico City</div></div></a>
@@ -294,12 +518,12 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 <a class="match-card" href="#"><div class="match-time">00:30<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/cd.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">DR Congo</span></div><div class="team-row"><img src="https://flagcdn.com/w40/uz.png" class="flag" alt=""><div class="team-name">Melvin</div><span class="country-tag">Uzbekistan</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">GROUP K</div><div class="venue">Lincoln Financial, Philadelphia</div></div></a>
 <a class="match-card" href="#"><div class="match-time">03:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/dz.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">Algeria</span></div><div class="team-row"><img src="https://flagcdn.com/w40/at.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Austria</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">GROUP J</div><div class="venue">Levi's Stadium, San Francisco</div></div></a>
 <a class="match-card" href="#"><div class="match-time">03:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/jo.png" class="flag" alt=""><div class="team-name">Smevy</div><span class="country-tag">Jordan</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ar.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Argentina</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">GROUP J</div><div class="venue">Hard Rock Stadium, Miami</div></div></a>
-</div><!-- end group tab -->
 
+</div><!-- end group tab -->
 
 <div id="tab-standings" class="tab-content">
   <div id="standings-container">
-    <div style="padding:20px;text-align:center;color:#888;font-size:13px;">Loading standings...</div>
+    <div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">Loading standings...</div>
   </div>
 </div>
 
@@ -374,12 +598,13 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
 </div>
 </div>
 
+
+
 </div><!-- end fixtures -->
 
-<!-- RIGHT SIDEBAR -->
 <aside class="sidebar">
   <div class="s-card">
-    <div class="s-title">Players &amp; Their Countries</div>
+    <div class="s-title">Players &amp; Countries</div>
     <div class="s-group"><div class="s-label">Samuel</div>
       <div class="s-team"><img src="https://flagcdn.com/w40/es.png" class="s-flag" alt="">Spain</div>
       <div class="s-team"><img src="https://flagcdn.com/w40/at.png" class="s-flag" alt="">Austria</div>
@@ -448,26 +673,18 @@ body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; color:#222
   <div class="s-card">
     <div class="s-title">Key Dates</div>
     <div class="s-group" style="font-size:11px;line-height:2.1;">
-      <div>&#9679; <b>11 Jun</b> &mdash; Group stage opens</div>
-      <div>&#9679; <b>28 Jun</b> &mdash; Group stage closes</div>
-      <div>&#9679; <b>28 Jun&ndash;3 Jul</b> &mdash; Round of 32</div>
-      <div>&#9679; <b>4&ndash;8 Jul</b> &mdash; Round of 16</div>
-      <div>&#9679; <b>9&ndash;12 Jul</b> &mdash; Quarter-finals</div>
-      <div>&#9679; <b>14&ndash;15 Jul</b> &mdash; Semi-finals</div>
-      <div>&#11088; <b>19 Jul</b> &mdash; Final &middot; MetLife</div>
+      <div><span class="date-dot live"></span> <b>11 Jun</b> &mdash; Group stage opens</div>
+      <div><span class="date-dot"></span> <b>28 Jun</b> &mdash; Group stage closes</div>
+      <div><span class="date-dot"></span> <b>28 Jun&ndash;3 Jul</b> &mdash; Round of 32</div>
+      <div><span class="date-dot"></span> <b>4&ndash;8 Jul</b> &mdash; Round of 16</div>
+      <div><span class="date-dot"></span> <b>9&ndash;12 Jul</b> &mdash; Quarter-finals</div>
+      <div><span class="date-dot"></span> <b>14&ndash;15 Jul</b> &mdash; Semi-finals</div>
+      <div><span class="date-dot gold"></span> <b>19 Jul</b> &mdash; Final &middot; MetLife</div>
     </div>
   </div>
 </aside>
 
-</div>
-<script>
-function showTab(id,btn){
-  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
-}
-</script>
+</div><!-- end main -->
 
 <script>
 // ============================================================
@@ -780,5 +997,13 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
 </body>
 </html>
