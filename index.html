@@ -470,184 +470,140 @@ function showTab(id,btn){
 </script>
 
 <script>
+
 // ============================================================
-// LIVE SCORES — ESPN public API (no key required)
-// Fetches scores for each match date and updates the page
+// LIVE SCORES — football-data.org API
 // ============================================================
 
-// Map ESPN team names to our country names (handles variations)
-const nameMap = {
-  "Mexico":"Mexico","South Africa":"South Africa","South Korea":"South Korea",
-  "Czech Republic":"Czechia","Czechia":"Czechia","Canada":"Canada",
-  "Bosnia and Herzegovina":"Bosnia","Bosnia-Herzegovina":"Bosnia","Bosnia":"Bosnia",
-  "Qatar":"Qatar","Switzerland":"Switzerland","Brazil":"Brazil","Morocco":"Morocco",
-  "United States":"USA","USA":"USA","Paraguay":"Paraguay","Haiti":"Haiti",
-  "Scotland":"Scotland","Australia":"Australia","Turkey":"Turkey","Germany":"Germany",
-  "Curacao":"Curacao","Curaçao":"Curacao","Netherlands":"Netherlands","Japan":"Japan",
-  "Ivory Coast":"Cote d'Ivoire","Côte d'Ivoire":"Cote d'Ivoire","Cote d'Ivoire":"Cote d'Ivoire",
-  "Ecuador":"Ecuador","Sweden":"Sweden","Tunisia":"Tunisia","Spain":"Spain",
-  "Cape Verde":"Cabo Verde","Cabo Verde":"Cabo Verde","Belgium":"Belgium","Egypt":"Egypt",
-  "Saudi Arabia":"Saudi Arabia","Uruguay":"Uruguay","Iran":"Iran","New Zealand":"New Zealand",
-  "France":"France","Senegal":"Senegal","Iraq":"Iraq","Norway":"Norway",
-  "Argentina":"Argentina","Algeria":"Algeria","Austria":"Austria","Jordan":"Jordan",
-  "Portugal":"Portugal","DR Congo":"DR Congo","Congo DR":"DR Congo","Ghana":"Ghana",
-  "Panama":"Panama","England":"England","Croatia":"Croatia","Uzbekistan":"Uzbekistan",
-  "Colombia":"Colombia","England":"England"
+const FD_KEY = "38f1d8c736004db8af3a8c19a207cd1a";
+const FD_BASE = "https://api.football-data.org/v4";
+const WC_CODE = "WC"; // FIFA World Cup competition code
+
+// Map football-data.org team names to our country names
+const fdNameMap = {
+  "Mexico":"Mexico","South Africa":"South Africa","Korea Republic":"South Korea",
+  "Czechia":"Czechia","Czech Republic":"Czechia","Canada":"Canada",
+  "Bosnia and Herzegovina":"Bosnia","Qatar":"Qatar","Switzerland":"Switzerland",
+  "Brazil":"Brazil","Morocco":"Morocco","United States":"USA","USA":"USA",
+  "Paraguay":"Paraguay","Haiti":"Haiti","Scotland":"Scotland","Australia":"Australia",
+  "Turkey":"Turkey","Türkiye":"Turkey","Germany":"Germany","Curaçao":"Curacao",
+  "Côte d'Ivoire":"Cote d'Ivoire","Ecuador":"Ecuador","Netherlands":"Netherlands",
+  "Japan":"Japan","Sweden":"Sweden","Tunisia":"Tunisia","Spain":"Spain",
+  "Cabo Verde":"Cabo Verde","Belgium":"Belgium","Egypt":"Egypt","IR Iran":"Iran",
+  "Iran":"Iran","New Zealand":"New Zealand","Saudi Arabia":"Saudi Arabia",
+  "Uruguay":"Uruguay","France":"France","Senegal":"Senegal","Iraq":"Iraq",
+  "Norway":"Norway","Argentina":"Argentina","Algeria":"Algeria","Austria":"Austria",
+  "Jordan":"Jordan","Portugal":"Portugal","Uzbekistan":"Uzbekistan",
+  "DR Congo":"DR Congo","England":"England","Croatia":"Croatia",
+  "Ghana":"Ghana","Panama":"Panama","Colombia":"Colombia"
 };
 
-// All match dates we need to fetch
-const matchDates = [
-  "20260611","20260612","20260613","20260614","20260615","20260616","20260617",
-  "20260618","20260619","20260620","20260621","20260622","20260623","20260624",
-  "20260625","20260626","20260627","20260628"
-];
+function normFD(n){ return fdNameMap[n] || n; }
 
-// Score data store: key = "Team1|Team2", value = {home, away, status, clock, matchId}
-const scoreStore = {};
+// Score store: "Country1|Country2" -> {home, away, status, minute}
+const fdScoreStore = {};
 
-// Status display helpers
-function statusLabel(status, clock) {
-  if (status === "STATUS_SCHEDULED") return null; // keep original kick-off time
-  if (status === "STATUS_IN_PROGRESS") return clock ? clock + "'" : "LIVE";
-  if (status === "STATUS_HALFTIME") return "HT";
-  if (status === "STATUS_FINAL" || status === "STATUS_FULL_TIME") return "FT";
-  if (status === "STATUS_POSTPONED") return "PPD";
-  return null;
-}
-
-function makeKey(t1, t2) {
-  const a = nameMap[t1] || t1;
-  const b = nameMap[t2] || t2;
-  return a + "|" + b;
-}
-
-// Fetch scores for a single date
-async function fetchDate(dateStr) {
+async function fetchFDMatches() {
   try {
-    const url = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=" + dateStr;
-    const res = await fetch(url);
-    if (!res.ok) return;
-    const data = await res.json();
-    const events = data.events || [];
-    events.forEach(ev => {
-      const comps = ev.competitions && ev.competitions[0];
-      if (!comps) return;
-      const competitors = comps.competitors || [];
-      if (competitors.length < 2) return;
-
-      // ESPN orders: index 0 = home, index 1 = away
-      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
-      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
-      const homeName = home.team.displayName;
-      const awayName = away.team.displayName;
-      const homeScore = home.score || "0";
-      const awayScore = away.score || "0";
-      const statusName = ev.status && ev.status.type && ev.status.type.name;
-      const clock = ev.status && ev.status.displayClock;
-
-      const key1 = makeKey(homeName, awayName);
-      const key2 = makeKey(awayName, homeName);
-
-      const entry = { home: homeScore, away: awayScore, status: statusName, clock: clock, reversed: false };
-      scoreStore[key1] = entry;
-      scoreStore[key2] = { home: awayScore, away: homeScore, status: statusName, clock: clock, reversed: true };
+    // Fetch all WC 2026 matches
+    const res = await fetch(`${FD_BASE}/competitions/${WC_CODE}/matches?season=2026`, {
+      headers: { "X-Auth-Token": FD_KEY }
     });
+    if (!res.ok) { console.warn("football-data API error:", res.status); return; }
+    const data = await res.json();
+    const matches = data.matches || [];
+
+    let anyLive = false;
+
+    matches.forEach(match => {
+      const h = normFD(match.homeTeam.name);
+      const a = normFD(match.awayTeam.name);
+      const hs = match.score.fullTime.home !== null ? match.score.fullTime.home :
+                 match.score.halfTime.home !== null ? match.score.halfTime.home : 0;
+      const as_ = match.score.fullTime.away !== null ? match.score.fullTime.away :
+                  match.score.halfTime.away !== null ? match.score.halfTime.away : 0;
+      const status = match.status; // SCHEDULED, TIMED, IN_PLAY, PAUSED, FINISHED
+      const minute = match.minute || null;
+
+      if (status === "IN_PLAY" || status === "PAUSED") anyLive = true;
+
+      const entry = { home: hs, away: as_, status, minute };
+      fdScoreStore[h + "|" + a] = { ...entry, reversed: false };
+      fdScoreStore[a + "|" + h] = { home: as_, away: hs, status, minute, reversed: true };
+    });
+
+    updateFDCards();
+
+    // Refresh every 30s if live, every 90s otherwise
+    setTimeout(fetchFDMatches, anyLive ? 30000 : 90000);
+
   } catch(e) {
-    // Silently fail — page still works without scores
+    console.warn("football-data fetch error:", e);
+    setTimeout(fetchFDMatches, 90000);
   }
 }
 
-// Fetch all dates
-async function fetchAllScores() {
-  await Promise.all(matchDates.map(fetchDate));
-  updateMatchCards();
+function fdStatusLabel(status, minute) {
+  if (status === "SCHEDULED" || status === "TIMED") return null;
+  if (status === "IN_PLAY") return minute ? minute + "'" : "LIVE";
+  if (status === "PAUSED") return "HT";
+  if (status === "FINISHED") return "FT";
+  return null;
 }
 
-// Update all match cards on the page with scores
-function updateMatchCards() {
+function updateFDCards() {
   const cards = document.querySelectorAll("a.match-card");
-  let anyLive = false;
-
   cards.forEach(card => {
     const countries = card.querySelectorAll(".country-tag");
     if (countries.length < 2) return;
     const c1 = countries[0].textContent.trim();
     const c2 = countries[1].textContent.trim();
-    const key = c1 + "|" + c2;
-    const entry = scoreStore[key];
+    const entry = fdScoreStore[c1 + "|" + c2];
     if (!entry) return;
 
-    const label = statusLabel(entry.status, entry.clock);
-    if (!label) return; // match not started yet, keep kick-off time
+    const label = fdStatusLabel(entry.status, entry.minute);
+    if (!label) return;
 
-    // Get or create the score display element
     let scoreEl = card.querySelector(".live-score");
     if (!scoreEl) {
       scoreEl = document.createElement("div");
       scoreEl.className = "live-score";
-      // Insert between teams and match-meta
       const meta = card.querySelector(".match-meta");
       card.insertBefore(scoreEl, meta);
     }
 
-    // Determine score based on card order
-    const score1 = entry.reversed ? entry.away : entry.home;
-    const score2 = entry.reversed ? entry.home : entry.away;
-
-    const isLive = entry.status === "STATUS_IN_PROGRESS";
-    const isFT = entry.status === "STATUS_FINAL" || entry.status === "STATUS_FULL_TIME";
-    const isHT = entry.status === "STATUS_HALFTIME";
-
-    if (isLive) anyLive = true;
-
-    let statusClass = isFT ? "score-ft" : isLive ? "score-live" : isHT ? "score-ht" : "score-ft";
-    let statusText = isLive ? (entry.clock ? entry.clock + "'" : "LIVE") : label;
+    const isLive = entry.status === "IN_PLAY";
+    const isHT   = entry.status === "PAUSED";
+    const isFT   = entry.status === "FINISHED";
+    const statusClass = isLive ? "score-live" : isHT ? "score-ht" : "score-ft";
 
     scoreEl.innerHTML =
-      "<div class=\"score-nums\">" + score1 + " - " + score2 + "</div>" +
-      "<div class=\"score-status " + statusClass + "\">" + statusText + "</div>";
+      `<div class="score-nums">${entry.home} - ${entry.away}</div>` +
+      `<div class="score-status ${statusClass}">${label}</div>`;
 
-    // Update the time display
     const timeEl = card.querySelector(".match-time");
-    if (timeEl && !isFT) {
-      timeEl.style.opacity = "0.4";
-    }
-
-    // Highlight live cards
-    if (isLive) {
-      card.style.borderLeft = "3px solid #e74c3c";
-      card.style.background = "#fffbfb";
-    } else if (isFT) {
-      card.style.opacity = "0.8";
-    }
+    if (timeEl && !isFT) timeEl.style.opacity = "0.4";
+    if (isLive) { card.style.borderLeft = "3px solid #e74c3c"; card.style.background = "#fffbfb"; }
+    else if (isFT) { card.style.opacity = "0.8"; }
   });
 
-  // Schedule next refresh
-  const interval = anyLive ? 30000 : 120000; // 30s if live, 2min otherwise
-  setTimeout(fetchAllScores, interval);
-
-  // Update last-refreshed indicator
   const ind = document.getElementById("refresh-indicator");
-  if (ind) {
-    const now = new Date();
-    ind.textContent = "Scores last updated: " + now.toLocaleTimeString("en-GB");
-  }
+  if (ind) ind.textContent = "Scores last updated: " + new Date().toLocaleTimeString("en-GB");
 }
 
-// Add styles for score display
-const style = document.createElement("style");
-style.textContent = `
+// Add styles
+const fdStyle = document.createElement("style");
+fdStyle.textContent = `
   .live-score { display:flex; flex-direction:column; align-items:center; min-width:52px; flex-shrink:0; }
   .score-nums { font-size:17px; font-weight:700; color:#111; letter-spacing:1px; }
   .score-status { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-top:1px; padding:1px 5px; border-radius:3px; }
   .score-live { background:#e74c3c; color:#fff; }
-  .score-ht  { background:#f39c12; color:#fff; }
-  .score-ft  { background:#555; color:#fff; }
+  .score-ht   { background:#f39c12; color:#fff; }
+  .score-ft   { background:#555;    color:#fff; }
   #refresh-indicator { text-align:center; font-size:10px; color:#aaa; padding:8px; }
 `;
-document.head.appendChild(style);
+document.head.appendChild(fdStyle);
 
-// Add refresh indicator at bottom of fixtures
 window.addEventListener("DOMContentLoaded", () => {
   const fixtures = document.querySelector(".fixtures");
   if (fixtures) {
@@ -656,7 +612,7 @@ window.addEventListener("DOMContentLoaded", () => {
     ind.textContent = "Loading scores...";
     fixtures.appendChild(ind);
   }
-  fetchAllScores();
+  fetchFDMatches();
 });
 </script>
 
@@ -809,107 +765,33 @@ function applyResult(home, away, homeScore, awayScore, status) {
   }
 }
 
-async function fetchStandingsDate(dateStr) {
+async function fetchFDStandings() {
   try {
-    const url = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=" + dateStr;
-    const res = await fetch(url);
+    const res = await fetch(`${FD_BASE}/competitions/${WC_CODE}/matches?season=2026`, {
+      headers: { "X-Auth-Token": FD_KEY }
+    });
     if (!res.ok) return;
     const data = await res.json();
-    (data.events || []).forEach(ev => {
-      const comps = ev.competitions && ev.competitions[0];
-      if (!comps) return;
-      const competitors = comps.competitors || [];
-      if (competitors.length < 2) return;
-      const home = competitors.find(c => c.homeAway === "home") || competitors[0];
-      const away = competitors.find(c => c.homeAway === "away") || competitors[1];
-      const h = normName(home.team.displayName);
-      const a = normName(away.team.displayName);
-      const hs = home.score || "0";
-      const as_ = away.score || "0";
-      const status = ev.status && ev.status.type && ev.status.type.name;
-      applyResult(h, a, hs, as_, status);
+    (data.matches || []).forEach(match => {
+      const h = normFD(match.homeTeam.name);
+      const a = normFD(match.awayTeam.name);
+      const status = match.status;
+      const hs = match.score.fullTime.home !== null ? match.score.fullTime.home :
+                 match.score.halfTime.home !== null ? match.score.halfTime.home : 0;
+      const as_ = match.score.fullTime.away !== null ? match.score.fullTime.away :
+                  match.score.halfTime.away !== null ? match.score.halfTime.away : 0;
+      const isCountable = status === "IN_PLAY" || status === "PAUSED" || status === "FINISHED";
+      if (isCountable) applyResult(h, a, hs, as_, 
+        status === "FINISHED" ? "STATUS_FINAL" : "STATUS_IN_PROGRESS");
     });
   } catch(e) {}
 }
 
-function sortGroup(teams) {
-  return [...teams].sort((a, b) => {
-    const da = standingsData[a], db = standingsData[b];
-    if (db.pts !== da.pts) return db.pts - da.pts;
-    const gdA = da.gf - da.ga, gdB = db.gf - db.ga;
-    if (gdB !== gdA) return gdB - gdA;
-    if (db.gf !== da.gf) return db.gf - da.gf;
-    return a.localeCompare(b);
-  });
-}
-
-function formBadge(r) {
-  if (r === "W") return `<div class="form-w">W</div>`;
-  if (r === "D") return `<div class="form-d">D</div>`;
-  return `<div class="form-l">L</div>`;
-}
-
-function renderStandings() {
-  const container = document.getElementById("standings-container");
-  if (!container) return;
-
-  let html = `<div class="standings-grid">`;
-
-  Object.entries(groupTeams).forEach(([grp, teams]) => {
-    const sorted = sortGroup(teams);
-    html += `<div class="standings-card">
-      <div class="standings-head">GROUP ${grp}</div>
-      <table class="standings-table">
-        <thead><tr>
-          <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th>
-          <th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th>
-        </tr></thead><tbody>`;
-
-    sorted.forEach(team => {
-      const s = standingsData[team] || { p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,form:[] };
-      const gd = s.gf - s.ga;
-      const gdStr = gd > 0 ? `+${gd}` : `${gd}`;
-      const gdClass = gd > 0 ? "gd-pos" : gd < 0 ? "gd-neg" : "";
-      const info = teamInfo[team] || { player: team, flag: "un" };
-      const recentForm = s.form.slice(-3);
-      const formHtml = recentForm.length
-        ? `<div class="form-cell">${recentForm.map(formBadge).join("")}</div>`
-        : `<span style="color:#ccc;font-size:10px;">-</span>`;
-
-      html += `<tr>
-        <td><div class="team-cell">
-          <img src="https://flagcdn.com/w40/${info.flag}.png" alt="">
-          <span class="player-name">${info.player}</span>
-          <span class="country-name">${team}</span>
-        </div></td>
-        <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
-        <td>${s.gf}</td><td>${s.ga}</td>
-        <td class="${gdClass}">${gdStr}</td>
-        <td class="pts-cell">${s.pts}</td>
-        <td>${formHtml}</td>
-      </tr>`;
-    });
-
-    html += `</tbody></table></div>`;
-  });
-
-  html += `</div><div id="standings-updated"></div>`;
-  container.innerHTML = html;
-
-  const upd = document.getElementById("standings-updated");
-  if (upd) upd.textContent = "Standings last updated: " + new Date().toLocaleTimeString("en-GB");
-}
-
 async function refreshStandings() {
   initStandings();
-  const dates = [
-    "20260611","20260612","20260613","20260614","20260615","20260616","20260617",
-    "20260618","20260619","20260620","20260621","20260622","20260623","20260624",
-    "20260625","20260626","20260627","20260628"
-  ];
-  await Promise.all(dates.map(fetchStandingsDate));
+  await fetchFDStandings();
   renderStandings();
-  setTimeout(refreshStandings, 60000); // refresh every 60 seconds
+  setTimeout(refreshStandings, 60000);
 }
 
 // Kick off standings when page loads
