@@ -972,29 +972,36 @@ function renderStandings() {
 // ---- STYLES ----
 const style = document.createElement("style");
 style.textContent = `
-  .live-score{display:flex;flex-direction:column;align-items:center;min-width:52px;flex-shrink:0}
+  .live-score{display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0}
   .score-nums{font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:700;color:#f0b429;letter-spacing:2px;line-height:1}
-  .score-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:1px;padding:1px 5px;border-radius:3px}
-  .score-live{background:#e74c3c;color:#fff}.score-ht{background:#f39c12;color:#fff}.score-ft{background:#475569;color:#f1f5f9;font-weight:700}
-  #refresh-indicator{text-align:center;font-size:10px;color:#aaa;padding:8px}
-  .standings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:16px 0}
-  .standings-card{background:#fff;border:1px solid #ddd;overflow:hidden}
-  .standings-head{background:#1a2e52;color:#fff;padding:8px 12px;font-size:12px;font-weight:700}
-  table.standings-table{width:100%;border-collapse:collapse;font-size:12px}
-  table.standings-table th{background:#0d1424;padding:5px 8px;text-align:center;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #252b38}
+  .score-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;padding:2px 6px;border-radius:3px}
+  .score-live{background:#dc2626;color:#fff;animation:pulse 1.5s infinite}
+  .score-ht{background:#92400e;color:#fcd34d}
+  .score-ft{background:#475569;color:#f1f5f9;font-weight:700}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+  #refresh-indicator{text-align:center;font-size:10px;color:#525d72;padding:12px}
+  .standings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;padding:16px 0}
+  .standings-card{background:#131720;border:1px solid #252b38;overflow:hidden;border-radius:4px}
+  .standings-head{background:#0a0f1e;color:#f0b429;padding:8px 12px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;border-bottom:1px solid #b8882a}
+  table.standings-table{width:100%;border-collapse:collapse;font-size:11px}
+  table.standings-table th{background:#0d1424;padding:6px 8px;text-align:center;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #252b38}
   table.standings-table th:first-child{text-align:left;padding-left:10px}
-  table.standings-table td{padding:6px 8px;text-align:center;border-bottom:1px solid #f5f5f5}
+  table.standings-table td{padding:7px 8px;text-align:center;border-bottom:1px solid #1e2430;background:#131720;color:#e8ecf4}
   table.standings-table td:first-child{text-align:left;padding-left:10px}
   table.standings-table tr:last-child td{border-bottom:none}
+  table.standings-table tr:hover td{background:#181d27}
   .team-cell{display:flex;align-items:center;gap:7px}
-  .team-cell img{width:20px;height:13px;object-fit:cover;border:1px solid #eee;flex-shrink:0}
-  .player-name{font-weight:700;color:#111}.country-name{font-size:10px;color:#888;margin-left:2px}
-  .gd-pos{color:#27ae60;font-weight:600}.gd-neg{color:#e74c3c;font-weight:600}
-  .pts-cell{font-weight:700;color:#1a2e52}
+  .team-cell img{width:18px;height:12px;object-fit:cover;border-radius:1px;border:1px solid #252b38;flex-shrink:0}
+  .player-name{font-weight:700;color:#e8ecf4}
+  .country-name{font-size:9px;color:#525d72;margin-left:1px}
+  .gd-pos{color:#22c55e;font-weight:600}
+  .gd-neg{color:#dc2626;font-weight:600}
+  .pts-cell{font-weight:700;color:#f0b429}
   .form-cell{display:flex;gap:2px;justify-content:center}
   .form-w,.form-d,.form-l{width:14px;height:14px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;border-radius:2px;color:#fff}
-  .form-w{background:#27ae60}.form-d{background:#f39c12}.form-l{background:#e74c3c}
-`;
+  .form-w{background:#166534}.form-d{background:#92400e}.form-l{background:#991b1b}
+  #standings-updated{text-align:center;font-size:10px;color:#525d72;padding:8px}
+`
 document.head.appendChild(style);
 
 // ---- INIT ----
