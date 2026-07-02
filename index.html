@@ -313,7 +313,69 @@ table.standings-table tr:hover td { background:var(--bg-card2); }
 .date-dot.live { background:var(--green-bright); }
 .date-dot.gold { background:var(--gold); }
 
-@media(max-width:960px){ .main{grid-template-columns:1fr;} .groups-panel,.sidebar{display:none;} }
+/* ===================== MOBILE ===================== */
+@media(max-width:960px){
+  /* Layout */
+  .main { grid-template-columns:1fr; padding:10px; gap:12px; }
+  .groups-panel, .sidebar { display:none; }
+
+  /* Top bar */
+  .top-bar-inner { padding:0 12px; }
+  .top-nav { display:none; }
+  .logo-text { font-size:15px; }
+
+  /* Hero */
+  .hero { padding:0 12px; }
+  .hero-inner { flex-direction:column; align-items:flex-start; gap:12px; padding:16px 0 14px; }
+  .hero-title { font-size:28px; }
+  .hero-eyebrow { font-size:10px; }
+  .hero-sub { font-size:11px; }
+  .hero-right { gap:16px; }
+  .hero-stat-num { font-size:22px; }
+  .hero-divider { display:none; }
+
+  /* Tab nav */
+  .tab-nav { padding:0 8px; }
+  .tab-btn { padding:0 10px; font-size:11px; height:40px; }
+
+  /* Match cards */
+  .match-card { padding:8px 10px; gap:6px; }
+  .match-time { width:36px; font-size:10px; }
+  .match-time .tz { font-size:8px; }
+  .team-name { font-size:12px; }
+  .country-tag { font-size:9px; }
+  .flag { width:20px; height:13px; }
+  .match-meta { min-width:80px; }
+  .venue { font-size:9px; }
+  .group-pill { font-size:8px; padding:1px 5px; }
+
+  /* Score display */
+  .live-score { min-width:46px; }
+  .score-nums { font-size:18px !important; }
+  .score-status { font-size:8px !important; padding:1px 4px !important; }
+
+  /* Date headers */
+  .date-header { font-size:10px; padding:6px 10px; }
+
+  /* Phase labels */
+  .phase-label { font-size:12px; padding:5px 10px; }
+
+  /* KO matches */
+  .ko-match { padding:8px 10px; }
+  .ko-slot { font-size:11px; }
+  .ko-round { font-size:12px; padding:8px 10px; }
+
+  /* Standings grid — single column */
+  .standings-grid { grid-template-columns:1fr !important; }
+}
+
+@media(max-width:480px){
+  .hero-right { flex-wrap:wrap; gap:12px; }
+  .tab-btn { padding:0 8px; font-size:10px; letter-spacing:0; }
+  .match-card { padding:7px 8px; gap:4px; }
+  .country-tag { display:none; }
+  .match-meta { min-width:70px; }
+}
 </style>
 </head>
 <body>
@@ -445,76 +507,82 @@ table.standings-table tr:hover td { background:var(--bg-card2); }
 <div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Round of 32 — 28 June to 3 July 2026. All times BST.</div>
 
 <div class="date-header">Sunday 28 June 2026</div>
-<a class="match-card" href="#"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/za.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">South Africa</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ca.png" class="flag" alt=""><div class="team-name">Richard</div><span class="country-tag">Canada</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">SoFi Stadium, Los Angeles</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/za.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">South Africa</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ca.png" class="flag" alt=""><div class="team-name">Richard</div><span class="country-tag">Canada</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">0 - 1</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">SoFi Stadium, Los Angeles</div></div></a>
 
 <div class="date-header">Monday 29 June 2026</div>
-<a class="match-card" href="#"><div class="match-time">18:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/br.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Brazil</span></div><div class="team-row"><img src="https://flagcdn.com/w40/jp.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">Japan</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">NRG Stadium, Houston</div></div></a>
-<a class="match-card" href="#"><div class="match-time">21:30<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/de.png" class="flag" alt=""><div class="team-name">Seas</div><span class="country-tag">Germany</span></div><div class="team-row"><img src="https://flagcdn.com/w40/py.png" class="flag" alt=""><div class="team-name">Ivan</div><span class="country-tag">Paraguay</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Gillette Stadium, Boston</div></div></a>
-<a class="match-card" href="#"><div class="match-time">02:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/nl.png" class="flag" alt=""><div class="team-name">Marsh</div><span class="country-tag">Netherlands</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ma.png" class="flag" alt=""><div class="team-name">Kai</div><span class="country-tag">Morocco</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Estadio BBVA, Monterrey</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">18:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/br.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Brazil</span></div><div class="team-row"><img src="https://flagcdn.com/w40/jp.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">Japan</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">2 - 1</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">NRG Stadium, Houston</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">21:30<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/de.png" class="flag" alt=""><div class="team-name">Seas</div><span class="country-tag">Germany</span></div><div class="team-row"><img src="https://flagcdn.com/w40/py.png" class="flag" alt=""><div class="team-name">Ivan</div><span class="country-tag">Paraguay</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">1 - 1</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Gillette Stadium, Boston</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">02:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/nl.png" class="flag" alt=""><div class="team-name">Marsh</div><span class="country-tag">Netherlands</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ma.png" class="flag" alt=""><div class="team-name">Kai</div><span class="country-tag">Morocco</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">1 - 1</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Estadio BBVA, Monterrey</div></div></a>
 
 <div class="date-header">Tuesday 30 June 2026</div>
-<a class="match-card" href="#"><div class="match-time">18:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ci.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Cote d'Ivoire</span></div><div class="team-row"><img src="https://flagcdn.com/w40/no.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Norway</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">AT&T Stadium, Dallas</div></div></a>
-<a class="match-card" href="#"><div class="match-time">22:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/fr.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">France</span></div><div class="team-row"><img src="https://flagcdn.com/w40/se.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">Sweden</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">MetLife Stadium, New York/NJ</div></div></a>
-<a class="match-card" href="#"><div class="match-time">02:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/mx.png" class="flag" alt=""><div class="team-name">Liv</div><span class="country-tag">Mexico</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ec.png" class="flag" alt=""><div class="team-name">Melvin</div><span class="country-tag">Ecuador</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Estadio Azteca, Mexico City</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">18:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ci.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Cote d'Ivoire</span></div><div class="team-row"><img src="https://flagcdn.com/w40/no.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Norway</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">1 - 2</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">AT&T Stadium, Dallas</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">22:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/fr.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">France</span></div><div class="team-row"><img src="https://flagcdn.com/w40/se.png" class="flag" alt=""><div class="team-name">Air</div><span class="country-tag">Sweden</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">3 - 0</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">MetLife Stadium, New York/NJ</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">02:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/mx.png" class="flag" alt=""><div class="team-name">Liv</div><span class="country-tag">Mexico</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ec.png" class="flag" alt=""><div class="team-name">Melvin</div><span class="country-tag">Ecuador</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">2 - 0</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Estadio Azteca, Mexico City</div></div></a>
 
 <div class="date-header">Wednesday 1 July 2026</div>
-<a class="match-card" href="#"><div class="match-time">17:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/gb-eng.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">England</span></div><div class="team-row"><img src="https://flagcdn.com/w40/cd.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">DR Congo</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Mercedes-Benz, Atlanta</div></div></a>
-<a class="match-card" href="#"><div class="match-time">21:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/be.png" class="flag" alt=""><div class="team-name">Smevy</div><span class="country-tag">Belgium</span></div><div class="team-row"><img src="https://flagcdn.com/w40/sn.png" class="flag" alt=""><div class="team-name">Liv</div><span class="country-tag">Senegal</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Lumen Field, Seattle</div></div></a>
-<a class="match-card" href="#"><div class="match-time">01:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/us.png" class="flag" alt=""><div class="team-name">Smevy</div><span class="country-tag">USA</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ba.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">Bosnia</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Levi's Stadium, San Francisco</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">17:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/gb-eng.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">England</span></div><div class="team-row"><img src="https://flagcdn.com/w40/cd.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">DR Congo</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">2 - 1</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Mercedes-Benz, Atlanta</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">21:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/be.png" class="flag" alt=""><div class="team-name">Smevy</div><span class="country-tag">Belgium</span></div><div class="team-row"><img src="https://flagcdn.com/w40/sn.png" class="flag" alt=""><div class="team-name">Liv</div><span class="country-tag">Senegal</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">3 - 2</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Lumen Field, Seattle</div></div></a>
+<a class="match-card" href="#" style="opacity:0.85;"><div class="match-time" style="opacity:0.4;">01:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/us.png" class="flag" alt=""><div class="team-name">Smevy</div><span class="country-tag">USA</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ba.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">Bosnia</span></div></div><div class="vs-col">v</div><div class="live-score"><div class="score-nums">2 - 0</div><div class="score-status score-ft">FT</div></div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Levi's Stadium, San Francisco</div></div></a>
 
 <div class="date-header">Thursday 2 July 2026</div>
-<a class="match-card" href="#"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/es.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Spain</span></div><div class="team-row"><img src="https://flagcdn.com/w40/at.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Austria</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">SoFi Stadium, Los Angeles</div></div></a>
-<a class="match-card" href="#"><div class="match-time">00:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/pt.png" class="flag" alt=""><div class="team-name">Melvin</div><span class="country-tag">Portugal</span></div><div class="team-row"><img src="https://flagcdn.com/w40/hr.png" class="flag" alt=""><div class="team-name">Rich</div><span class="country-tag">Croatia</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">BMO Field, Toronto</div></div></a>
-<a class="match-card" href="#"><div class="match-time">04:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ch.png" class="flag" alt=""><div class="team-name">Nojo</div><span class="country-tag">Switzerland</span></div><div class="team-row"><img src="https://flagcdn.com/w40/dz.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">Algeria</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">BC Place, Vancouver</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/es.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Spain</span></div><div class="team-row"><img src="https://flagcdn.com/w40/at.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Austria</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">SoFi Stadium, Los Angeles</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >00:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/pt.png" class="flag" alt=""><div class="team-name">Melvin</div><span class="country-tag">Portugal</span></div><div class="team-row"><img src="https://flagcdn.com/w40/hr.png" class="flag" alt=""><div class="team-name">Rich</div><span class="country-tag">Croatia</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">BMO Field, Toronto</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >04:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ch.png" class="flag" alt=""><div class="team-name">Nojo</div><span class="country-tag">Switzerland</span></div><div class="team-row"><img src="https://flagcdn.com/w40/dz.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">Algeria</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">BC Place, Vancouver</div></div></a>
 
 <div class="date-header">Friday 3 July 2026</div>
-<a class="match-card" href="#"><div class="match-time">19:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/au.png" class="flag" alt=""><div class="team-name">Kai</div><span class="country-tag">Australia</span></div><div class="team-row"><img src="https://flagcdn.com/w40/eg.png" class="flag" alt=""><div class="team-name">Nojo</div><span class="country-tag">Egypt</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">AT&T Stadium, Dallas</div></div></a>
-<a class="match-card" href="#"><div class="match-time">23:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ar.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Argentina</span></div><div class="team-row"><img src="https://flagcdn.com/w40/cv.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Cabo Verde</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Hard Rock Stadium, Miami</div></div></a>
-<a class="match-card" href="#"><div class="match-time">02:30<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/co.png" class="flag" alt=""><div class="team-name">Ivan</div><span class="country-tag">Colombia</span></div><div class="team-row"><img src="https://flagcdn.com/w40/gh.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">Ghana</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Arrowhead Stadium, Kansas City</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >19:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/au.png" class="flag" alt=""><div class="team-name">Kai</div><span class="country-tag">Australia</span></div><div class="team-row"><img src="https://flagcdn.com/w40/eg.png" class="flag" alt=""><div class="team-name">Nojo</div><span class="country-tag">Egypt</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">AT&T Stadium, Dallas</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >23:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ar.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Argentina</span></div><div class="team-row"><img src="https://flagcdn.com/w40/cv.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Cabo Verde</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Hard Rock Stadium, Miami</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >02:30<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/co.png" class="flag" alt=""><div class="team-name">Ivan</div><span class="country-tag">Colombia</span></div><div class="team-row"><img src="https://flagcdn.com/w40/gh.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">Ghana</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R32</div><div class="venue">Arrowhead Stadium, Kansas City</div></div></a>
 
 </div>
 
 <div id="tab-r16" class="tab-content">
-<div class="ko-note">Round of 16 — 4–8 July 2026.</div>
-<div class="ko-round">4 July — Independence Day</div>
-<div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 1</div></div><div class="team-row"><div class="ko-slot">R32 Winner 2</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">MetLife Stadium, New York/NJ</div></div></div>
-<div class="ko-round">5–8 July</div>
-<div class="ko-match"><div class="match-time">5 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 3</div></div><div class="team-row"><div class="ko-slot">R32 Winner 4</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">SoFi Stadium, Los Angeles</div></div></div>
-<div class="ko-match"><div class="match-time">5 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 5</div></div><div class="team-row"><div class="ko-slot">R32 Winner 6</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">AT&amp;T Stadium, Dallas</div></div></div>
-<div class="ko-match"><div class="match-time">6 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 7</div></div><div class="team-row"><div class="ko-slot">R32 Winner 8</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">Hard Rock Stadium, Miami</div></div></div>
-<div class="ko-match"><div class="match-time">7 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 9</div></div><div class="team-row"><div class="ko-slot">R32 Winner 10</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">Mercedes-Benz, Atlanta</div></div></div>
-<div class="ko-match"><div class="match-time">7 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 11</div></div><div class="team-row"><div class="ko-slot">R32 Winner 12</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">Levi's Stadium, San Francisco</div></div></div>
-<div class="ko-match"><div class="match-time">8 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 13</div></div><div class="team-row"><div class="ko-slot">R32 Winner 14</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">Estadio Akron, Guadalajara</div></div></div>
-<div class="ko-match"><div class="match-time">8 Jul</div><div class="teams"><div class="team-row"><div class="ko-slot">R32 Winner 15</div></div><div class="team-row"><div class="ko-slot">R32 Winner 16</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">BC Place, Vancouver</div></div></div>
+<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Round of 16 — 4–8 July 2026. Teams update automatically as R32 results are confirmed.</div>
+
+<div class="date-header">Saturday 4 July 2026</div>
+<a class="match-card" href="#" ><div class="match-time" >18:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/ca.png" class="flag" alt=""><div class="team-name">Richard</div><span class="country-tag">Canada</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ma.png" class="flag" alt=""><div class="team-name">Kai</div><span class="country-tag">Morocco</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R16</div><div class="venue">NRG Stadium, Houston</div></div></a>
+<a class="match-card" href="#" ><div class="match-time" >22:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/py.png" class="flag" alt=""><div class="team-name">Ivan</div><span class="country-tag">Paraguay</span></div><div class="team-row"><img src="https://flagcdn.com/w40/fr.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">France</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R16</div><div class="venue">Lincoln Financial, Philadelphia</div></div></a>
+
+<div class="date-header">Sunday 5 July 2026</div>
+<a class="match-card" href="#" ><div class="match-time" >21:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/br.png" class="flag" alt=""><div class="team-name">Mount</div><span class="country-tag">Brazil</span></div><div class="team-row"><img src="https://flagcdn.com/w40/no.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Norway</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R16</div><div class="venue">MetLife Stadium, New York/NJ</div></div></a>
+
+<div class="date-header">Monday 6 July 2026</div>
+<a class="match-card" href="#" ><div class="match-time" >01:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/mx.png" class="flag" alt=""><div class="team-name">Liv</div><span class="country-tag">Mexico</span></div><div class="team-row"><img src="https://flagcdn.com/w40/gb-eng.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">England</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">R16</div><div class="venue">Estadio Azteca, Mexico City</div></div></a>
+
+<div class="date-header">TBD — remaining fixtures confirmed after 3 July</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;padding:10px 14px;gap:10px;margin-top:1px;">
+  <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:4px 0;">Winner Spain/Austria vs Winner Switzerland/Algeria</div>
+</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:10px 14px;gap:10px;">
+  <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:4px 0;">Winner Portugal/Croatia vs Winner Australia/Egypt or Argentina/Cabo Verde</div>
+</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:10px 14px;gap:10px;">
+  <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:4px 0;">Winner Belgium/Senegal vs Winner USA/Bosnia or Spain/Austria</div>
+</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:10px 14px;gap:10px;">
+  <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:4px 0;">Winner Colombia/Ghana vs Winner Argentina/Cabo Verde or Australia/Egypt</div>
+</div>
 </div>
 
-<!-- QF -->
 <div id="tab-qf" class="tab-content">
-<div class="ko-note">Quarter-finals — 9–12 July 2026.</div>
-<div class="ko-round">9 July</div><div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">R16 Winner 1</div></div><div class="team-row"><div class="ko-slot">R16 Winner 2</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">MetLife Stadium, New York/NJ</div></div></div>
-<div class="ko-round">10 July</div><div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">R16 Winner 3</div></div><div class="team-row"><div class="ko-slot">R16 Winner 4</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">SoFi Stadium, Los Angeles</div></div></div>
-<div class="ko-round">11 July</div><div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">R16 Winner 5</div></div><div class="team-row"><div class="ko-slot">R16 Winner 6</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">AT&amp;T Stadium, Dallas</div></div></div>
-<div class="ko-round">12 July</div><div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">R16 Winner 7</div></div><div class="team-row"><div class="ko-slot">R16 Winner 8</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">Hard Rock Stadium, Miami</div></div></div>
+<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Quarter-finals — 9–12 July 2026. Fixtures confirmed after Round of 16.</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;padding:12px 14px;gap:10px;margin-top:8px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">9 Jul — R16 Winner 1 vs R16 Winner 2 &mdash; MetLife Stadium, New York/NJ</div></div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:12px 14px;gap:10px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">10 Jul — R16 Winner 3 vs R16 Winner 4 &mdash; SoFi Stadium, Los Angeles</div></div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:12px 14px;gap:10px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">11 Jul — R16 Winner 5 vs R16 Winner 6 &mdash; AT&amp;T Stadium, Dallas</div></div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:12px 14px;gap:10px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">12 Jul — R16 Winner 7 vs R16 Winner 8 &mdash; Hard Rock Stadium, Miami</div></div>
 </div>
 
-<!-- SF -->
 <div id="tab-sf" class="tab-content">
-<div class="ko-round">Tuesday 14 July 2026</div>
-<div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">QF Winner 1</div></div><div class="team-row"><div class="ko-slot">QF Winner 2</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">MetLife Stadium, New York/NJ</div></div></div>
-<div class="ko-round">Wednesday 15 July 2026</div>
-<div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">QF Winner 3</div></div><div class="team-row"><div class="ko-slot">QF Winner 4</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">SoFi Stadium, Los Angeles</div></div></div>
+<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Semi-finals — 14–15 July 2026. Fixtures confirmed after Quarter-finals.</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;padding:12px 14px;gap:10px;margin-top:8px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">14 Jul — QF Winner 1 vs QF Winner 2 &mdash; MetLife Stadium, New York/NJ</div></div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);border-top:none;display:flex;align-items:center;padding:12px 14px;gap:10px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">15 Jul — QF Winner 3 vs QF Winner 4 &mdash; SoFi Stadium, Los Angeles</div></div>
 </div>
 
-<!-- FINAL -->
 <div id="tab-final" class="tab-content">
-<div class="ko-round">Friday 18 July 2026 — Third-place play-off</div>
-<div class="ko-match"><div class="match-time">20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><div class="ko-slot">SF Loser 1</div></div><div class="team-row"><div class="ko-slot">SF Loser 2</div></div></div><div class="vs-col">v</div><div class="match-meta"><div class="venue">Hard Rock Stadium, Miami</div></div></div>
-<div class="ko-round" style="background:#bb1919;">Saturday 19 July 2026 — THE FINAL</div>
-<div class="ko-match" style="border:2px solid #bb1919;padding:14px 12px;">
-  <div class="match-time" style="font-size:14px;font-weight:900;">20:00<span class="tz">BST</span></div>
-  <div class="teams"><div class="team-row"><div class="ko-slot" style="font-size:15px;font-weight:700;color:#222;">SF Winner 1</div></div><div class="team-row"><div class="ko-slot" style="font-size:15px;font-weight:700;color:#222;">SF Winner 2</div></div></div>
-  <div class="vs-col" style="font-size:15px;color:#bb1919;font-weight:900;">v</div>
-  <div class="match-meta"><div class="group-pill" style="background:#bb1919;">FINAL</div><div class="venue" style="font-weight:700;">MetLife Stadium<br>New York / New Jersey</div></div>
+<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Third-place play-off — 18 July. Final — 19 July 2026.</div>
+<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;padding:12px 14px;gap:10px;margin-top:8px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">18 Jul — SF Loser 1 vs SF Loser 2 &mdash; Hard Rock Stadium, Miami</div></div>
+<div class="ko-match" style="background:var(--bg-card);border:2px solid var(--gold);display:flex;align-items:center;padding:16px 14px;gap:10px;margin-top:12px;border-radius:4px;">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;">19 Jul &mdash; THE FINAL &mdash; MetLife Stadium, New York/NJ</div>
 </div>
 </div>
 
@@ -612,9 +680,18 @@ table.standings-table tr:hover td { background:var(--bg-card2); }
 // ============================================================
 
 const matchDates = [
+  // Group stage
   "20260611","20260612","20260613","20260614","20260615","20260616","20260617",
   "20260618","20260619","20260620","20260621","20260622","20260623","20260624",
-  "20260625","20260626","20260627","20260628"
+  "20260625","20260626","20260627","20260628",
+  // Round of 32
+  "20260629","20260630","20260701","20260702","20260703",
+  // Round of 16
+  "20260704","20260705","20260706","20260707","20260708",
+  // Quarter-finals
+  "20260709","20260710","20260711","20260712",
+  // Semi-finals + Final
+  "20260714","20260715","20260718","20260719"
 ];
 
 const espnNameMap = {
@@ -894,6 +971,14 @@ function renderStandings() {
 // ---- INJECT ONLY LIVE SCORE STYLES — no standings styles needed, all inline above ----
 const style = document.createElement("style");
 style.textContent = `
+  .live-score{display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;}
+  .score-nums{font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:700;color:#f0b429;letter-spacing:2px;line-height:1;}
+  .score-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;padding:2px 6px;border-radius:3px;}
+  .score-live{background:#dc2626;color:#fff;animation:pulse 1.5s infinite;}
+  .score-ht{background:#92400e;color:#fcd34d;}
+  .score-ft{background:#475569;color:#f1f5f9;font-weight:700;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+  #refresh-indicator{text-align:center;font-size:10px;color:#525d72;padding:12px;}
   .live-score{display:flex;flex-direction:column;align-items:center;min-width:58px;flex-shrink:0;}
   .score-nums{font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:700;color:#f0b429;letter-spacing:2px;line-height:1;}
   .score-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;padding:2px 6px;border-radius:3px;}
