@@ -376,6 +376,48 @@ table.standings-table tr:hover td { background:var(--bg-card2); }
   .country-tag { display:none; }
   .match-meta { min-width:70px; }
 }
+
+<style>
+.final-card {
+  background: linear-gradient(135deg, #0f1a0a 0%, #131720 40%, #1a1208 100%) !important;
+  border: 2px solid var(--gold) !important;
+  border-radius: 6px !important;
+  padding: 18px 16px !important;
+  position: relative;
+  overflow: hidden;
+}
+.final-card::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, #f0b429, transparent);
+}
+.final-card::after {
+  content: '';
+  position: absolute; bottom:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, #f0b429, transparent);
+}
+.final-flag { width:36px !important; height:24px !important; }
+.final-name { font-size:20px !important; font-family:'Bebas Neue',sans-serif !important; letter-spacing:1px !important; color:#f0b429 !important; }
+.final-vs { font-size:16px !important; color:var(--gold) !important; font-weight:900 !important; }
+.final-card .score-nums { font-size:30px !important; color:#f0b429 !important; }
+.final-card .team-row { padding: 4px 0 !important; }
+.final-header {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px; letter-spacing:3px;
+  color:#f0b429;
+  text-align:center;
+  padding:20px 0 8px;
+  text-shadow: 0 0 20px rgba(240,180,41,0.4);
+}
+.final-subtext {
+  text-align:center;
+  font-size:11px;
+  color:var(--text-muted);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+</style>
 </style>
 </head>
 <body>
@@ -414,8 +456,7 @@ table.standings-table tr:hover td { background:var(--bg-card2); }
 
 <div class="tab-nav">
   <div class="tab-nav-inner">
-    <button class="tab-btn active" onclick="showTab('sf',this)">Semi-finals</button>
-    <button class="tab-btn" onclick="showTab('final',this)">Final</button>
+    <button class="tab-btn active" onclick="showTab('final',this)">Final</button>
   </div>
 </div>
 
@@ -500,26 +541,18 @@ table.standings-table tr:hover td { background:var(--bg-card2); }
 
 
 
-<div id="tab-sf" class="tab-content active">
-<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Semi-finals — 14–15 July 2026. All times BST. Scores update automatically.</div>
+<div id="tab-final" class="tab-content active">
 
-<div class="date-header">Tuesday 14 July 2026</div>
-<a class="match-card" href="#" ><div class="match-time" >20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/fr.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">France</span></div><div class="team-row"><img src="https://flagcdn.com/w40/es.png" class="flag" alt=""><div class="team-name">Samuel</div><span class="country-tag">Spain</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">SF</div><div class="venue">MetLife Stadium, New York/NJ</div></div></a>
+<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Third-place play-off &amp; Final — 18–19 July 2026. All times BST. Scores update automatically.</div>
 
-<div class="date-header">Wednesday 15 July 2026</div>
-<a class="match-card" href="#" ><div class="match-time" >20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/gb-eng.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">England</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ar.png" class="flag" alt=""><div class="team-name">Abbie</div><span class="country-tag">Argentina</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">SF</div><div class="venue">SoFi Stadium, Los Angeles</div></div></a>
+<div class="date-header">Saturday 18 July 2026 — Third-place play-off</div>
+<a class="match-card" href="#" ><div class="match-time" >22:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/fr.png" class="flag" alt=""><div class="team-name">Coops</div><span class="country-tag">France</span></div><div class="team-row"><img src="https://flagcdn.com/w40/gb-eng.png" class="flag" alt=""><div class="team-name">TJ</div><span class="country-tag">England</span></div></div><div class="vs-col">v</div><div class="match-meta"><div class="group-pill">3RD PLACE</div><div class="venue">Hard Rock Stadium, Miami</div></div></a>
+
+<div class="final-header">⭐ FIFA WORLD CUP 2026 FINAL ⭐</div>
+<div class="final-subtext">Sunday 19 July 2026 &bull; MetLife Stadium, New York / New Jersey</div>
+<a class="match-card final-card" href="#" ><div class="match-time" >20:00<span class="tz">BST</span></div><div class="teams"><div class="team-row"><img src="https://flagcdn.com/w40/es.png" class="flag final-flag" alt=""><div class="team-name final-name">Samuel</div><span class="country-tag">Spain</span></div><div class="team-row"><img src="https://flagcdn.com/w40/ar.png" class="flag final-flag" alt=""><div class="team-name final-name">Abbie</div><span class="country-tag">Argentina</span></div></div><div class="vs-col final-vs">v</div><div class="match-meta"><div class="group-pill" style="background:linear-gradient(135deg,#b8882a,#f0b429);color:#000;font-size:11px;padding:3px 10px;border:none;">THE FINAL</div><div class="venue" style="font-weight:600;color:#94a3b8;">MetLife Stadium, New York/NJ</div></div></a>
 
 </div>
-
-<div id="tab-final" class="tab-content">
-<div class="ko-note" style="background:#1a1a0a;border:1px solid #b8882a;border-left:3px solid #f0b429;padding:10px 14px;font-size:12px;color:#94a3b8;margin:12px 0;border-radius:0 4px 4px 0;">Third-place play-off — 18 July. Final — 19 July 2026.</div>
-<div class="ko-match" style="background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;padding:12px 14px;gap:10px;margin-top:8px;"><div style="font-size:12px;color:var(--text-muted);font-style:italic;">18 Jul — SF Loser 1 vs SF Loser 2 &mdash; Hard Rock Stadium, Miami</div></div>
-<div class="ko-match" style="background:var(--bg-card);border:2px solid var(--gold);display:flex;align-items:center;padding:16px 14px;gap:10px;margin-top:12px;border-radius:4px;">
-  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);letter-spacing:1px;">19 Jul &mdash; THE FINAL &mdash; MetLife Stadium, New York/NJ</div>
-</div>
-</div>
-
-
 
 </div><!-- end fixtures -->
 
